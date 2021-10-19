@@ -1,0 +1,2 @@
+C:\Users\alber\source\repos\BRISK_MiniProject\BRISK_MiniProject\x64\Debug\BRISK_MiniProject.exe
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\x64\Debug\BRISK_MiniProject.exe
