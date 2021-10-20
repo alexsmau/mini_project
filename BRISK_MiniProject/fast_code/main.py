@@ -1,36 +1,33 @@
 import numpy as np
-import cv2
+import cv2 as cv
 from matplotlib import pyplot as plt
 
 def open_src_fast():
     print ("Start code")
-    img = cv2.imread('IMG_20201231_194210.jpg',0)
-    print ("Marker 1")
+    img = cv.imread('IMG_20201231_194210.jpg',cv.IMREAD_GRAYSCALE)
+
     # Initiate FAST object with default values
-    fast = cv2.FastFeatureDetector()
-    print ("Marker 2")
+    fast = cv.FastFeatureDetector_create()  # FastFeatureDetector()
+
     # find and draw the keypoints
+    thresh = 25
+    fast.setThreshold(thresh)
+    fast.setNonmaxSuppression(0)
+
     kp = fast.detect(img, None)
-    print ("Marker 3")
-    img2 = cv2.drawKeypoints(img, kp, color=(255,0,0))
-    print ("Marker 4")
-    # Print all default params
-    print ("Threshold: ", fast.getInt('threshold'))
-    print ("nonmaxSuppression: ", fast.getBool('nonmaxSuppression'))
-    print ("neighborhood: ", fast.getInt('type'))
-    print ("Total Keypoints with nonmaxSuppression: ", len(kp))
 
-    cv2.imwrite('fast_true.png',img2)
+    print ("There are " + str(len(kp)) + " keypoints")
 
-    # Disable nonmaxSuppression
-    fast.setBool('nonmaxSuppression',0)
-    kp = fast.detect(img,None)
+    print (str (kp[0].pt))
+    print(str(kp[0].size))
+    print(str(kp[0].response))
 
-    print ("Total Keypoints without nonmaxSuppression: ", len(kp))
+    print(str(kp[100].pt))
+    print(str(kp[100].size))
+    print(str(kp[100].response))
 
-    img3 = cv2.drawKeypoints(img, kp, color=(255,0,0))
-
-    cv2.imwrite('fast_false.png',img3)
+    img2 = cv.drawKeypoints(img, kp, img, color=(255, 0, 0))
+    plt.imshow(img2), plt.show()
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
