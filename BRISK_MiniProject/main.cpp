@@ -26,6 +26,8 @@
 using namespace cv;
 using namespace std;
 
+tuple <vector<vector<Mat>>, vector<vector<Mat>>> getscales;
+tuple <vector<KeyPoint>, vector<Mat>> FastReturn;
 
 vector<Mat> load_img(string img_path)
 {
@@ -64,13 +66,10 @@ void create_ScaleSpace(vector<Mat> images)
 	for (int i = 0; i < img.size(); i++)
 	{
 		vector<Mat> img_;
-		//bool done = false;
+		Mat octave;
 
 		for (int j = 0; j < scales; j++)
 		{
-			Mat octave;
-			octave = Mat::zeros(0,0, CV_8UC1);
-
 			if (octave.empty())
 			{
 				pyrDown(img[i], octave, Size((img[i].cols) / 2, (img[i].rows) / 2));
@@ -81,42 +80,82 @@ void create_ScaleSpace(vector<Mat> images)
 				pyrDown(octave, octave, Size((octave.cols) / 2, (octave.rows) / 2));
 				img_.push_back(octave);
 			}
-			//done = true;
 		}
 		octaves.push_back(img_);
-		//if (done == false) break;
 	}
 
-	cout << "Number of octaves" << octaves.size() << endl;
-
-	for (int a = 0; a < octaves.size(); a++)
+	/* show all the octaves
+	for (int a = 0; a <= octaves.size(); a++)
 	{
-		for (int b = 0; b < octaves.size(); b++)
+		for (int b = 0; b <= octaves.size(); b++)
 		{
 		Mat img3 = octaves[a][b];
 				imshow("Result", img3);
 				waitKey(0);
 		}
-
-	}
-	/*
-	for (int i = 0; i < octaves.size(); i++)
+	}*/
+	
+	for (int i = 0; i < img.size(); i++)
 	{
-		vector<Mat> img_;
-		bool done = false;
+		vector<Mat> _img;
+		Mat intraoctave;
 
 		for (int j = 0; j < scales; j++)
 		{
-			Mat intraoctave;
-			pyrDown(img[i], intraoctave, Size(2*(octaves[i].cols) / 3, 2*(octaves[i].rows) / 3));
-			img_.push_back(intraoctave);
-			done = true;
+			if (intraoctave.empty())
+			{
+				resize(img[i], intraoctave, Size(2 * (img[i].cols) / 3, 2 * (img[i].rows) / 3), INTER_LINEAR);
+				_img.push_back(intraoctave);
+			}
+			else
+			{
+				resize(intraoctave, intraoctave, Size(2 * (intraoctave.cols) / 3, 2 * (intraoctave.rows) / 3), INTER_LINEAR);
+				_img.push_back(intraoctave);
+			}
 		}
+		intraoctaves.push_back(_img);
+	}
 
-		if (done == false) break;
-		intraoctaves.push_back(img_);
+	/* show all the intraoctaves
+	for (int a = 0; a <= intraoctaves.size(); a++)
+	{
+		for (int b = 0; b <= intraoctaves.size(); b++)
+		{
+			Mat img3 = intraoctaves[a][b];
+			imshow("Result", img3);
+			waitKey(0);
+		}
 	}*/
 
+	getscales = make_tuple(octaves, intraoctaves);
+}
+
+void computeFAST(vector<Mat> images, vector<vector<Mat>> octaves, vector<vector<Mat>> intraoctaves)
+{
+	vector<Mat> img;
+	vector<KeyPoint> keypoints;
+	int threshold = 50;
+	bool nms = true;
+	
+	for (int i = 0; i < images.size(); i++)
+	{
+		img.push_back(images[i]);
+		
+		for (int j = 0; j < 4; j++)
+		{
+			img.push_back(octaves[i][j]);
+			img.push_back(intraoctaves[i][j]);
+		}
+	}
+
+	for (int i = 0; i < img.size(); i++)
+	{
+		FAST(img[i], keypoints, threshold, nms, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
+		//drawKeypoints(img[i], keypoints, img[i], Scalar::all(-1), DrawMatchesFlags::DEFAULT);
+		//imshow("FAST", img[i]);
+		//waitKey(0); 
+	}
+	FastReturn = make_tuple(keypoints, img);
 }
 
 int main()
@@ -125,7 +164,16 @@ int main()
 	string save_img = load_img_folder + "result";
 
 	vector<Mat> images = load_img(load_img_folder);
+
 	create_ScaleSpace(images);
+
+	vector<vector<Mat>> octaves = get<0>(getscales);
+	vector<vector<Mat>> intraoctaves = get<1>(getscales);
+
+	computeFAST(images, octaves, intraoctaves);
+
+	vector<KeyPoint> keypoints = get<0>(FastReturn);
+	vector<Mat> orderedimg = get<1>(FastReturn);
 
 	/*
 	for (int j = 0; j < images.size(); j++)
@@ -137,5 +185,4 @@ int main()
 		imshow("Result", img3);
 		waitKey(0);
 	}*/
-
 }
