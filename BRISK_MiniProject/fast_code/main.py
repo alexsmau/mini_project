@@ -16,6 +16,11 @@ def open_src_fast():
 
     kp = fast.detect(img, None)
 
+    print ("shape of image is " +str(img.shape))
+    print("type " + str(type(img[0][0])))
+
+    print ("max "+ str(np.iinfo(img[0][0].dtype).max))
+
     print ("There are " + str(len(kp)) + " keypoints")
 
     print (str (kp[0].pt))
