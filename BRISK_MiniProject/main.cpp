@@ -27,7 +27,10 @@ using namespace cv;
 using namespace std;
 
 tuple <vector<vector<Mat>>, vector<vector<Mat>>> getscales;
-tuple <vector<KeyPoint>, vector<Mat>> FastReturn;
+tuple <vector<Mat>> FastReturn;
+
+vector<vector<KeyPoint>> keypoints;
+
 
 vector<Mat> load_img(string img_path)
 {
@@ -50,13 +53,6 @@ vector<Mat> load_img(string img_path)
 void create_ScaleSpace(vector<Mat> images)
 {
 	vector<Mat> img = images;
-
-	/*for (int a = 0; a < img.size(); a++)
-	{
-		Mat img1 = img[a];
-		imshow("img", img1);
-		waitKey(0);
-	}*/
 
 	vector<vector<Mat>> octaves;
 	vector<vector<Mat>> intraoctaves;
@@ -84,17 +80,6 @@ void create_ScaleSpace(vector<Mat> images)
 		octaves.push_back(img_);
 	}
 
-	/* show all the octaves
-	for (int a = 0; a <= octaves.size(); a++)
-	{
-		for (int b = 0; b <= octaves.size(); b++)
-		{
-		Mat img3 = octaves[a][b];
-				imshow("Result", img3);
-				waitKey(0);
-		}
-	}*/
-	
 	for (int i = 0; i < img.size(); i++)
 	{
 		vector<Mat> _img;
@@ -116,31 +101,21 @@ void create_ScaleSpace(vector<Mat> images)
 		intraoctaves.push_back(_img);
 	}
 
-	/* show all the intraoctaves
-	for (int a = 0; a <= intraoctaves.size(); a++)
-	{
-		for (int b = 0; b <= intraoctaves.size(); b++)
-		{
-			Mat img3 = intraoctaves[a][b];
-			imshow("Result", img3);
-			waitKey(0);
-		}
-	}*/
-
 	getscales = make_tuple(octaves, intraoctaves);
 }
 
 void computeFAST(vector<Mat> images, vector<vector<Mat>> octaves, vector<vector<Mat>> intraoctaves)
 {
 	vector<Mat> img;
-	vector<KeyPoint> keypoints;
+	vector<KeyPoint> keypoint;
+	vector<vector<vector<KeyPoint>>> outputkeypoints;
 	int threshold = 50;
 	bool nms = true;
-	
+
 	for (int i = 0; i < images.size(); i++)
 	{
 		img.push_back(images[i]);
-		
+
 		for (int j = 0; j < 4; j++)
 		{
 			img.push_back(octaves[i][j]);
@@ -150,12 +125,14 @@ void computeFAST(vector<Mat> images, vector<vector<Mat>> octaves, vector<vector<
 
 	for (int i = 0; i < img.size(); i++)
 	{
-		FAST(img[i], keypoints, threshold, nms, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
+		FAST(img[i], keypoint, threshold, nms, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
+		keypoints.push_back(keypoint);
+
 		//drawKeypoints(img[i], keypoints, img[i], Scalar::all(-1), DrawMatchesFlags::DEFAULT);
 		//imshow("FAST", img[i]);
 		//waitKey(0); 
 	}
-	FastReturn = make_tuple(keypoints, img);
+	FastReturn = make_tuple(img);
 }
 
 int main()
@@ -172,8 +149,12 @@ int main()
 
 	computeFAST(images, octaves, intraoctaves);
 
-	vector<KeyPoint> keypoints = get<0>(FastReturn);
-	vector<Mat> orderedimg = get<1>(FastReturn);
+	vector<Mat> orderedimg = get<0>(FastReturn);
+
+	for (int i = 0; i < keypoints.size(); i++)
+	{
+		cout << keypoints[i].size() << endl;
+	}
 
 	/*
 	for (int j = 0; j < images.size(); j++)
