@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
+import FASTFeatureDetector as ffd
 
 def open_src_fast():
     print ("Start code")
@@ -15,6 +16,14 @@ def open_src_fast():
     fast.setNonmaxSuppression(0)
 
     kp = fast.detect(img, None)
+
+    # This is our code
+    rob7_fast = ffd.FASTFeatureDetector()
+
+    key_pts = rob7_fast.getFeatures(img)
+
+    print ("shape of image rob7 key points " + str(key_pts.shape))
+
 
     print ("shape of image is " +str(img.shape))
     print("type " + str(type(img[0][0])))
