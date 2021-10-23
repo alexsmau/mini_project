@@ -2,9 +2,10 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 import FASTFeatureDetector as ffd
+import time
 
 def open_src_fast():
-    print ("Start code")
+    print("Start code")
     img = cv.imread('IMG_20201231_194210.jpg',cv.IMREAD_GRAYSCALE)
 
     # Initiate FAST object with default values
@@ -19,9 +20,12 @@ def open_src_fast():
 
     # This is our code
     rob7_fast = ffd.FASTFeatureDetector()
+    print("start")
 
+    t0 = time.time()
     key_pts = rob7_fast.getFeatures(img)
-
+    t1 = time.time()
+    print("4. It took " + str(t1 - t0))
     print ("shape of image rob7 key points " + str(key_pts.shape))
 
 
@@ -39,6 +43,18 @@ def open_src_fast():
     print(str(kp[100].pt))
     print(str(kp[100].size))
     print(str(kp[100].response))
+
+    # Check if the keypoints I have found exist in the ones the open cv found.
+    opencv_kp = []
+    for k in kp:
+        opencv_kp.append([k.pt[1], k.pt[0]])
+    opencv_kp = np.array(opencv_kp)
+    count = 0
+    for x in key_pts:
+        if x not in opencv_kp:
+            count = count+1
+    print("nr of KP we found but open cv did not: "+str(count))
+
 
     img2 = cv.drawKeypoints(img, kp, img, color=(255, 0, 0))
     plt.imshow(img2), plt.show()

@@ -4,12 +4,37 @@ This is the ROB7-763 group's implementation of the Features from Accelerated Seg
 This file contains one class called FASTFeatureDetector
 """
 import numpy as np
+import numba
+from numba import jit
+from numba.experimental import jitclass
+spec = [('_min_nr_contiguous', numba.int32),
+        ('_t', numba.uint32),
+        ('_nms', numba.int32),
+        ('_offsets', numba.int32[:,:])]
 
+@jitclass(spec)
 class FASTFeatureDetector:
     def __init__(self, threshold = 10, non_max_suppression = False):
         self._min_nr_contiguous = 12
         self._t = threshold
         self._nms = non_max_suppression
+        self._offsets = np.array([[-3, 0],
+                         [-3, 1],  # 2
+                         [-2, 2],  # 3
+                         [-1, 3],  # 4
+                         [0, 3],  # 5
+                         [1, 3],  # 6
+                         [2, 2],  # 7
+                         [3, 1],  # 8
+                         [3, 0],  # 9
+                         [3, -1],  # 10
+                         [2, -2],  # 11
+                         [1, -3],  # 12
+                         [0, -3],  # 13
+                         [-1, -3],  # 14
+                         [-2, -2],  # 15
+                         [-3, -1]], dtype=np.int32)  # 16
+        """
         self._offsets = [(-3,  0), #1
                          (-3,  1), #2
                          (-2,  2), #3
@@ -26,6 +51,7 @@ class FASTFeatureDetector:
                          (-1, -3), #14
                          (-2, -2), #15
                          (-3, -1)] #16
+                         """
 
     def setThreshold(self, threshold):
         self._t = threshold
@@ -40,8 +66,10 @@ class FASTFeatureDetector:
         # or minus the threshold value)
         max_nr_invalid = nr_of_circle_pixels - self._min_nr_contiguous
 
-        type_max_value = np.iinfo(center_pixel.dtype).max
-        type_min_value = np.iinfo(center_pixel.dtype).min
+        #type_max_value = np.iinfo(center_pixel.dtype).max
+        type_max_value = 255
+        #type_min_value = np.iinfo(center_pixel.dtype).min
+        type_min_value = 0
 
         if (center_pixel + self._t) > type_max_value:
             Ihigh = type_max_value
@@ -113,17 +141,18 @@ class FASTFeatureDetector:
         else:
             return False
 
+#    @jit(nopython=True)
     def getFeatures(self, img):
         keypoints = []
 
         lines, cols = img.shape
-        print("lines "+str(lines)+ " columns " + str(cols))
+        #print("lines "+str(lines)+ " columns " + str(cols))
         #for l in range(lines):
         #    for c in range(cols):
         #        img[l][c] = img[l][c] - 1
         #print("Done")
         for l in range(lines-6):
-            print ("line "+ str(l))
+            #print ("line "+ str(l))
             for c in range(cols-6):
                 # Since the circle around the center pixel is of radius 3, then
                 # the iteration has to start at index [3][3]
@@ -132,16 +161,16 @@ class FASTFeatureDetector:
                 # TODO: add here the quick elimination criteria. The one where we use offsets 1,5,13.
                 pixel_circle = []
                 for offset in self._offsets:
-                    try:
-                        pixel_circle.append(img[ll+offset[0]][cc+offset[1]])
-                    except:
-                        print("crashed with ll " + str(ll))
-                        print("crashed with cc " + str(cc))
-                        print("crashed with offset[0] " + str(offset[0]))
-                        print("crashed with offset[1] " + str(offset[1]))
-                        break
+                    #try:
+                    pixel_circle.append(img[ll+offset[0]][cc+offset[1]])
+                    #except:
+                        #print("crashed with ll " + str(ll))
+                        #print("crashed with cc " + str(cc))
+                        #print("crashed with offset[0] " + str(offset[0]))
+                        #print("crashed with offset[1] " + str(offset[1]))
+                        #break
                 if self._isvalidKeypoint(img[ll][cc], pixel_circle):
-                    keypoints.append((ll, cc))
+                    keypoints.append([ll, cc])
 
-        return keypoints
+        return np.array(keypoints)
 
