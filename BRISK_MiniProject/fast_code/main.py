@@ -20,6 +20,7 @@ def open_src_fast():
 
     # This is our code
     rob7_fast = ffd.FASTFeatureDetector()
+    rob7_fast.setThreshold(thresh)
     print("start")
 
     t0 = time.time()

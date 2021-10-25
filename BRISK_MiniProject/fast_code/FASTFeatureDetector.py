@@ -7,51 +7,36 @@ import numpy as np
 import numba
 from numba import jit
 from numba.experimental import jitclass
+
 spec = [('_min_nr_contiguous', numba.int32),
-        ('_t', numba.uint32),
+        ('_t', numba.uint8),
         ('_nms', numba.int32),
-        ('_offsets', numba.int32[:,:])]
+        ('_offsets', numba.int32[:, :])]
+
 
 @jitclass(spec)
 class FASTFeatureDetector:
-    def __init__(self, threshold = 10, non_max_suppression = False):
+    def __init__(self, threshold=10, non_max_suppression=False):
         self._min_nr_contiguous = 12
         self._t = threshold
         self._nms = non_max_suppression
-        self._offsets = np.array([[-3, 0],
-                         [-3, 1],  # 2
-                         [-2, 2],  # 3
-                         [-1, 3],  # 4
-                         [0, 3],  # 5
-                         [1, 3],  # 6
-                         [2, 2],  # 7
-                         [3, 1],  # 8
-                         [3, 0],  # 9
-                         [3, -1],  # 10
-                         [2, -2],  # 11
-                         [1, -3],  # 12
-                         [0, -3],  # 13
-                         [-1, -3],  # 14
-                         [-2, -2],  # 15
-                         [-3, -1]], dtype=np.int32)  # 16
-        """
-        self._offsets = [(-3,  0), #1
-                         (-3,  1), #2
-                         (-2,  2), #3
-                         (-1,  3), #4
-                         ( 0,  3), #5
-                         ( 1,  3), #6
-                         ( 2,  2), #7
-                         ( 3,  1), #8
-                         ( 3,  0), #9
-                         ( 3, -1), #10
-                         ( 2, -2), #11
-                         ( 1, -3), #12
-                         ( 0, -3), #13
-                         (-1, -3), #14
-                         (-2, -2), #15
-                         (-3, -1)] #16
-                         """
+        self._offsets = np.array([[-3, 0],  # 1
+                                  [-3, 1],  # 2
+                                  [-2, 2],  # 3
+                                  [-1, 3],  # 4
+                                  [0, 3],  # 5
+                                  [1, 3],  # 6
+                                  [2, 2],  # 7
+                                  [3, 1],  # 8
+                                  [3, 0],  # 9
+                                  [3, -1],  # 10
+                                  [2, -2],  # 11
+                                  [1, -3],  # 12
+                                  [0, -3],  # 13
+                                  [-1, -3],  # 14
+                                  [-2, -2],  # 15
+                                  [-3, -1]],  # 16
+                                 dtype=np.int32)
 
     def setThreshold(self, threshold):
         self._t = threshold
@@ -66,17 +51,18 @@ class FASTFeatureDetector:
         # or minus the threshold value)
         max_nr_invalid = nr_of_circle_pixels - self._min_nr_contiguous
 
-        #type_max_value = np.iinfo(center_pixel.dtype).max
+        # type_max_value = np.iinfo(center_pixel.dtype).max
         type_max_value = 255
-        #type_min_value = np.iinfo(center_pixel.dtype).min
+        # type_min_value = np.iinfo(center_pixel.dtype).min
         type_min_value = 0
 
-        if (center_pixel + self._t) > type_max_value:
+        # if (center_pixel + self._t) > type_max_value:
+        if center_pixel > (type_max_value - self._t):
             Ihigh = type_max_value
         else:
             Ihigh = center_pixel + self._t
 
-        if (center_pixel - self._t) < type_min_value:
+        if center_pixel < (type_min_value + self._t):
             Ilow = type_min_value
         else:
             Ilow = center_pixel - self._t
@@ -86,7 +72,7 @@ class FASTFeatureDetector:
         # 0  - Invalid: pixel is between [center_intensity - threshold, center_intensity + threshold]
         # 1  - Brighter than center_intensity + threshold
         # -1 - Darker than center_intensity - threshold
-        circle_pixel_status = [0]*nr_of_circle_pixels  # by default, all are invalid
+        circle_pixel_status = [0] * nr_of_circle_pixels  # by default, all are invalid
         invalid_count = 0
         for i in range(nr_of_circle_pixels):
             if circle_of_pixels[i] > Ihigh:
@@ -104,25 +90,32 @@ class FASTFeatureDetector:
         first_change = 0
         found_change = False
         for idx in range(nr_of_circle_pixels):
-            if circle_pixel_status[idx] != circle_pixel_status[(idx+1) % nr_of_circle_pixels]:
-                first_change = (idx+1) % nr_of_circle_pixels
+            if circle_pixel_status[idx] != circle_pixel_status[(idx + 1) % nr_of_circle_pixels]:
+                first_change = (idx + 1) % nr_of_circle_pixels
                 found_change = True
                 break
 
         if not found_change:
             # Either all are brighter or darker. Sweet, we can stop now.
+            #print("I " + str(center_pixel) + " Ihigh: "+str(Ihigh)+ " Ilow: "+str(Ilow))
+            #print("-----------------------")
+            #print(center_pixel)
+            #print(Ihigh)
+            #print(Ilow)
+            #print(circle_of_pixels)
+            #print(circle_pixel_status)
             return True
 
         # Check to see if there are at least _min_nr_contiguous pixels of the same status.
         # Note: circle_pixel_status[] will be treated as a ring as opposed to an array.
-        count_array = [0]*nr_of_circle_pixels
+        count_array = [0] * nr_of_circle_pixels
         count_checked_elements = 0
         max_contiguous = 0
         idx = first_change
         previous_status = circle_pixel_status[idx]
         count_array[idx] = 1
         while count_checked_elements < nr_of_circle_pixels:
-            next_idx = (idx+1) % nr_of_circle_pixels
+            next_idx = (idx + 1) % nr_of_circle_pixels
             current_status = circle_pixel_status[next_idx]
             if previous_status == current_status:
                 count_array[next_idx] = count_array[idx] + 1
@@ -132,7 +125,7 @@ class FASTFeatureDetector:
                 previous_status = current_status
                 count_array[next_idx] = 1
 
-            idx = (idx+1) % nr_of_circle_pixels
+            idx = (idx + 1) % nr_of_circle_pixels
             count_checked_elements = count_checked_elements + 1
 
         # Final check. Are there more enough contiguous pixels?
@@ -141,36 +134,29 @@ class FASTFeatureDetector:
         else:
             return False
 
-#    @jit(nopython=True)
     def getFeatures(self, img):
         keypoints = []
 
         lines, cols = img.shape
-        #print("lines "+str(lines)+ " columns " + str(cols))
-        #for l in range(lines):
-        #    for c in range(cols):
-        #        img[l][c] = img[l][c] - 1
-        #print("Done")
-        for l in range(lines-6):
-            #print ("line "+ str(l))
-            for c in range(cols-6):
+        for l in range(lines - 6):
+            # print ("line "+ str(l))
+            for c in range(cols - 6):
                 # Since the circle around the center pixel is of radius 3, then
                 # the iteration has to start at index [3][3]
-                ll = l+3
-                cc = c+3
+                ll = l + 3
+                cc = c + 3
                 # TODO: add here the quick elimination criteria. The one where we use offsets 1,5,13.
                 pixel_circle = []
                 for offset in self._offsets:
-                    #try:
-                    pixel_circle.append(img[ll+offset[0]][cc+offset[1]])
-                    #except:
-                        #print("crashed with ll " + str(ll))
-                        #print("crashed with cc " + str(cc))
-                        #print("crashed with offset[0] " + str(offset[0]))
-                        #print("crashed with offset[1] " + str(offset[1]))
-                        #break
+                    # try:
+                    pixel_circle.append(img[ll + offset[0]][cc + offset[1]])
+                    # except:
+                    # print("crashed with ll " + str(ll))
+                    # print("crashed with cc " + str(cc))
+                    # print("crashed with offset[0] " + str(offset[0]))
+                    # print("crashed with offset[1] " + str(offset[1]))
+                    # break
                 if self._isvalidKeypoint(img[ll][cc], pixel_circle):
                     keypoints.append([ll, cc])
 
         return np.array(keypoints)
-
