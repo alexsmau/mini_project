@@ -31,7 +31,6 @@ tuple <vector<Mat>> FastReturn;
 
 vector<vector<KeyPoint>> keypoints;
 
-
 vector<Mat> load_img(string img_path)
 {
 	vector<Mat> images;
