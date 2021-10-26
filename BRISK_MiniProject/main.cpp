@@ -110,7 +110,7 @@ void computeFAST(vector<Mat> images, vector<vector<Mat>> octaves, vector<vector<
 
 	for (int i = 0; i < img.size(); i++)
 	{
-		FAST(img[i], keypoint, threshold, nms, cv::FastFeatureDetector::DetectorType::TYPE_9_16);
+		FAST(img[i], keypoint, threshold, nms, FastFeatureDetector::DetectorType::TYPE_9_16);
 		keypoints.push_back(keypoint);
 
 		//drawKeypoints(img[i], keypoints, img[i], Scalar::all(-1), DrawMatchesFlags::DEFAULT);
@@ -122,6 +122,19 @@ void computeFAST(vector<Mat> images, vector<vector<Mat>> octaves, vector<vector<
 
 void nms_scales(vector<Mat> img)
 {
+	/*
+	vector<KeyPoints> good_kp;
+	for layer[k] in layers
+		for kp in layer[k]
+			kp_up = find_kp(layer[k+1])
+			kp_down = find_kp(layer[k-1])
+			if ((kp_up && kp_down) EXIST)
+				
+				if score(kp) > score[kp_up] && score(kp) > score[kp_down]
+					kp.parabola_Scale = get_parabola_scale((score[kp], scale[kp]),
+					(score[kp_up],scale[kp_up]),(score[kp_down],scale[kp]))
+		
+	*/
 	cout << img.size() << endl;
 	for (int i = 0; i < img.size(); i++)
 	{
@@ -145,7 +158,7 @@ void nms_scales(vector<Mat> img)
 			- We need to have access to the scores of all the keypoints found by FAST (Alex?¿)
 			- Does there exist a function that computes NMS between scales?
 			- We need an easy way of NMS2.0, compare the keypoints on adyacent scales and remove the smaller ones
-			- - std::sort()
+			- - sort()
 		*/
 		for (int j = 0; j < keypoints[i].size(); j++)
 		{
@@ -194,9 +207,9 @@ void nms_scales(vector<Mat> img)
 
 void cheatBrisk(vector<Mat> images)
 {
-	std::vector<cv::KeyPoint> keypointsA, keypointsB;
-	cv::Mat descriptorsA, descriptorsB;
-
+	vector<KeyPoint> keypointsA, keypointsB;
+	Mat descriptorsA, descriptorsB;
+	
 	int Threshl = 100;
 	int Octaves = 4; //(pyramid layer) from which the keypoint has been extracted
 	float PatternScales = 1.0f;
@@ -207,15 +220,15 @@ void cheatBrisk(vector<Mat> images)
 	detector->compute(images[4], keypointsA, descriptorsA);
 	detector->compute(images[5], keypointsB, descriptorsB);
 
-	std::vector<cv::DMatch> matches;
-	cv::FlannBasedMatcher matcher(new cv::flann::LshIndexParams(20, 10, 2));
+	vector<DMatch> matches;
+	FlannBasedMatcher matcher(new flann::LshIndexParams(20, 10, 2));
 	matcher.match(descriptorsA, descriptorsB, matches);
 
-	cv::Mat all_matches;
-	cv::drawMatches(images[4], keypointsA, images[5], keypointsB, matches, all_matches, cv::Scalar::all(-1), cv::Scalar::all(-1), vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	Mat all_matches;
+	drawMatches(images[4], keypointsA, images[5], keypointsB, matches, all_matches, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-	cv::imshow("BRISK All Matches", all_matches);
-	cv::waitKey(0);
+	imshow("BRISK All Matches", all_matches);
+	waitKey(0);
 }
 
 int main()
@@ -233,12 +246,14 @@ int main()
 	computeFAST(images, octaves, intraoctaves);
 
 	vector<Mat> orderedimg = get<0>(FastReturn);
+
+
 	//nms_scales(orderedimg);
 	/*
 	for (int i = 0; i < keypoints.size(); i++)
 	{
 		cout << keypoints[i].size() << endl;
-	}
+	}*/
 
 	for (int j = 0; j < orderedimg.size(); j++)
 	{
@@ -246,7 +261,7 @@ int main()
 		imshow("Result", img3);
 		waitKey(0);
 	}
-	*/
+	
 
 	//cheatBrisk(orderedimg);
 }

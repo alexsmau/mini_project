@@ -17,10 +17,7 @@ ROB_Brisk::ROB_Brisk(Mat img)
 }
 
 //Keypoint Detection
-void ROB_Brisk::create_scale_space() 
-{
-
-}
+void ROB_Brisk::create_scale_space() {}
 void ROB_Brisk::computeFAST() {}
 void ROB_Brisk::nms_scales() {}
 void ROB_Brisk::compute_subpixel_maximum() {}
