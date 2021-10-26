@@ -140,13 +140,13 @@ void nms_scales(vector<Mat> img)
 			upscaled = keypoints[m];
 		}
 
-/*
-	PROBLEMS:
-	- We need to have access to the scores of all the keypoints found by FAST (Alex?¿)
-	- Does there exist a function that computes NMS between scales?
-	- We need an easy way of NMS2.0, compare the keypoints on adyacent scales and remove the smaller ones
-	- - std::sort()
-*/
+		/*
+			PROBLEMS:
+			- We need to have access to the scores of all the keypoints found by FAST (Alex?¿)
+			- Does there exist a function that computes NMS between scales?
+			- We need an easy way of NMS2.0, compare the keypoints on adyacent scales and remove the smaller ones
+			- - std::sort()
+		*/
 		for (int j = 0; j < keypoints[i].size(); j++)
 		{
 			if (i < 9)
@@ -155,7 +155,7 @@ void nms_scales(vector<Mat> img)
 				{
 					for (int a = 0; a < downscaled.size(); a++)
 					{
-						float topleft[2] = { round(keypoints[i][j].pt.x / 2) -1 , round(keypoints[i][j].pt.y / 2) + 1 };
+						float topleft[2] = { round(keypoints[i][j].pt.x / 2) - 1 , round(keypoints[i][j].pt.y / 2) + 1 };
 						for (int x = 0; x < 9; x++)
 						{
 							for (int b = 0; b < 3; b++)
@@ -164,14 +164,14 @@ void nms_scales(vector<Mat> img)
 								topleft[1] == downscaled[a].pt.y;
 								topleft[1] - 1 == downscaled[a].pt.y;
 								topleft[1] - 2 == downscaled[a].pt.y;
-								
-								if (topleft[0]  == downscaled[a].pt.x && topleft[1] - b == downscaled[a].pt.y)
+
+								if (topleft[0] == downscaled[a].pt.x && topleft[1] - b == downscaled[a].pt.y)
 								{
 									//round(keypoints[i][j].pt.x / 2) == downscaled[a].pt.x;
 									//round(keypoints[i][j].pt.y / 2) == downscaled[a].pt.y;
 								}
 								topleft[0]++;
-							}				
+							}
 						}
 					}
 				}
@@ -205,7 +205,7 @@ void cheatBrisk(vector<Mat> images)
 	detector->detect(images[4], keypointsA);
 	detector->detect(images[5], keypointsB);
 	detector->compute(images[4], keypointsA, descriptorsA);
-	detector->compute(images[5],keypointsB, descriptorsB);
+	detector->compute(images[5], keypointsB, descriptorsB);
 
 	std::vector<cv::DMatch> matches;
 	cv::FlannBasedMatcher matcher(new cv::flann::LshIndexParams(20, 10, 2));
