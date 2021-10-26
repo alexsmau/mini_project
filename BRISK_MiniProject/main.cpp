@@ -124,17 +124,17 @@ void nms_scales(vector<Mat> img)
 {
 	/*
 	vector<KeyPoints> good_kp;
+>>>>>>> Adding what I forgot
 	for layer[k] in layers
 		for kp in layer[k]
 			kp_up = find_kp(layer[k+1])
 			kp_down = find_kp(layer[k-1])
-			if ((kp_up && kp_down) EXIST)
-				
-				if score(kp) > score[kp_up] && score(kp) > score[kp_down]
-					kp.parabola_Scale = get_parabola_scale((score[kp], scale[kp]),
-					(score[kp_up],scale[kp_up]),(score[kp_down],scale[kp]))
-		
-	*/
+			if (kp_up && kp_down EXIST)
+				if (score[kp] > (score[kp_up] && score[kp_down]))
+					kp.parabola = get_score((score[kp],score[kp]),(score[kp_up],scale[kp_up]),(score[kp_down],scale[kp_up]))
+					kp.coordinated_interpolation = get_interpolated(kp_position)
+					good_kp.push_back(kp)
+	*/ 
 	cout << img.size() << endl;
 	for (int i = 0; i < img.size(); i++)
 	{
@@ -160,6 +160,7 @@ void nms_scales(vector<Mat> img)
 			- We need an easy way of NMS2.0, compare the keypoints on adyacent scales and remove the smaller ones
 			- - sort()
 		*/
+
 		for (int j = 0; j < keypoints[i].size(); j++)
 		{
 			if (i < 9)
