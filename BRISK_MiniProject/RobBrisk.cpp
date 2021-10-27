@@ -13,7 +13,7 @@ using namespace std;
 
 ROB_Brisk::ROB_Brisk(Mat img) 
 {
-	//Clone img to image
+	image = img.clone();
 }
 
 //Keypoint Detection
@@ -28,4 +28,4 @@ void ROB_Brisk::sampling() {}
 void ROB_Brisk::pair_generation() {}
 void ROB_Brisk::pair_division() {}
 void ROB_Brisk::distance_computation() {}
-void ROB_Brisk::descriptor() {}
+void ROB_Brisk::descriptors() {}

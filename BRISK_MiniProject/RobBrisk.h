@@ -11,12 +11,31 @@
 using namespace cv;
 using namespace std;
 
+/*
+*	main.cpp
+*
+*	ROB_Brisk brisk1 = ROB_Brisk(image);
+*	vector<Descriptors>  descriptors = brisk1.get_descriptors();
+* 
+*  RobBrisk
+*  get_descriptors()
+*		1.- Create scale-space Pyramid (Layers are divided into Octaves and Intra-octaves)
+		2.- Compute FAST across scale-space (scores)
+		3.- Pixel level non-maximal suppression
+		4.- Compute sub-pixel maximum across patch
+		5.- Re-interpolate image coordinates from scale-space
+
+
+
+*/
+
+
 class ROB_Brisk
 {
 
 public:
 	ROB_Brisk(Mat img);
-	void descriptor(); //Function for generating the Descriptor
+	void descriptors(); //Function for generating the Descriptor
 	
 
 private:
