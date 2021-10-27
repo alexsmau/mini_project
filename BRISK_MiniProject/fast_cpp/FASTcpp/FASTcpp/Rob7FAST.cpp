@@ -65,6 +65,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> keypoints)
 						cc = j + offsets[k][1];
 						circle_of_pixels[k] = (int)(image.at<unsigned char>(ll, cc));
 					}
+					/*
 					std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
 					if (i == 3 && j == 346)
 					{
@@ -72,7 +73,8 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> keypoints)
 							std::cout << circle_of_pixels[k] << " ";
 						std::cout << "\n center pix: " << ((int)(image.at<unsigned char>(i, j))) << "\n";
 					}
-					if (getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(i, j)))))
+					*/
+					if (getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(i, j)))) != -1)
 					{
 						debug_count++;
 					}
@@ -81,7 +83,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> keypoints)
 ;
 			}
 
-			std::cout << " Rob7 algo has found " << debug_count << "keypoints \n";
+			std::cout << " Rob7 algo has found " << debug_count << " keypoints \n";
 		}
 	}
 	catch (...)
@@ -191,6 +193,7 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 			previous_status = current_status;
 			count_array[next_idx] = 1;
 		}
+		count_checked_elements++;
 	}
 
 	if (max_contiguous < min_nr_contiguous)

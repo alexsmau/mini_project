@@ -51,6 +51,7 @@ int main()
 	vector<KeyPoint> kpts2;
 	Ptr<Rob7FAST> rob7_fast = new Rob7FAST(25, false);
 	rob7_fast->getKeypoints(image, kpts2);
+	cout << "OpenCV found: " << kpts2.size() << " keypoints \n";
 	//cout << "Test that the class works " << rob7_fast->offsets[0][0]<<"\n";
 	
 	
