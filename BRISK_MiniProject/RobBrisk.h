@@ -5,8 +5,9 @@
 
 #include <opencv2/core/utility.hpp>
 #include <opencv2/core.hpp>
-
 #include <iostream>
+
+
 
 using namespace cv;
 using namespace std;
@@ -42,8 +43,10 @@ private:
 	Mat image; //Variable for the image
 
 	//Feature Detection
-	vector<Mat> layers[8]; //Vector containing the downsampled images
-	vector<KeyPoint> keypoints[8]; //Vector containing the keypoijnts obtained from FAST
+	vector<Mat> layers; //Vector containing the downsampled images
+	vector<vector<KeyPoint>> keypoints; //Vector containing the keypoijnts obtained from FAST
+	vector<Mat> keypointMatrix;
+
 
 	void create_scale_space(); //Function for "creating" the Scale-Space pyramid
 	void computeFAST(); //Function for computing the FAST algorithm, returning the keypoints found
