@@ -25,7 +25,7 @@ private:
 
 public:
 	Rob7FAST(int threshold = 10, bool non_maximum_suppression = true);
-	void getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> keypoints);
+	void getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints);
 };
 #endif
 

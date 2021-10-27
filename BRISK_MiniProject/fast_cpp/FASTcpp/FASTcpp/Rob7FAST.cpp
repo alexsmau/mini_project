@@ -45,7 +45,7 @@ Rob7FAST::Rob7FAST(int threshold, bool non_maximum_suppression)
 	min_nr_contiguous = 12;
 }
 
-void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> keypoints)
+void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 {
 	int circle_of_pixels[16];
 	int ll, cc;
@@ -65,18 +65,27 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> keypoints)
 						cc = j + offsets[k][1];
 						circle_of_pixels[k] = (int)(image.at<unsigned char>(ll, cc));
 					}
-					/*
-					std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
-					if (i == 3 && j == 346)
+					
+					//std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
+					if (i == 3 && j == 338)
 					{
 						for (int k = 0; k < 16; k++)
 							std::cout << circle_of_pixels[k] << " ";
 						std::cout << "\n center pix: " << ((int)(image.at<unsigned char>(i, j))) << "\n";
 					}
-					*/
-					if (getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(i, j)))) != -1)
+					
+					int fast_score = getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(i, j))));
+					if (fast_score != -1)
 					{
-						debug_count++;
+						if (fast_score > 1)
+						{
+							debug_count++;
+						}
+						/* Carefull, a matrix is using (i,j) as (row,column) but Point(x,y) is using (x,y) as (column,row).
+						 * As such the Point2d that descrives this keypoint is at x = j  and y = i.
+						 * It is super confusing, so be carefull when taking a keypoint and maping it to a matrix !!!
+						 */
+						keypoints.push_back(cv::KeyPoint(j, i, 1, 1, fast_score, 0, -1));
 					}
 
 				}
@@ -194,6 +203,12 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 			count_array[next_idx] = 1;
 		}
 		count_checked_elements++;
+		idx = (idx + 1) % 16;
+	}
+	if (pixel_status[idx] != 0 && count_array[idx] > max_contiguous)
+	{
+		max_contiguous = count_array[idx];
+		last_index = idx;
 	}
 
 	if (max_contiguous < min_nr_contiguous)

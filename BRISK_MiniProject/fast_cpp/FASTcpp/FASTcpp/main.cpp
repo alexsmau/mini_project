@@ -12,6 +12,30 @@ using namespace cv;
 using namespace std;
 
 
+void compare(vector<KeyPoint> kpts1, vector<KeyPoint> kpts2)
+{
+	bool exists;
+	for (KeyPoint kp1 : kpts1)
+	{
+		exists = false;
+		for (KeyPoint kp2 : kpts2)
+		{
+			if ((kp1.pt.x == kp2.pt.x) && (kp1.pt.y == kp2.pt.y))
+			{
+				exists = true;
+				break;
+			}
+		}
+
+		if (!exists)
+		{
+			cout << "Keypoint at col " << kp1.pt.x << " and row " << kp1.pt.y;
+			return;
+		}
+	}
+
+}
+
 int main()
 {
 	Mat image = imread("IMG_20201231_194210.jpg", IMREAD_GRAYSCALE);
@@ -39,20 +63,43 @@ int main()
 	*/
 
 	//cout <<(int)(image.at<unsigned char>(3, 3) )<< " ";
-	/*
+	
 	Ptr<FastFeatureDetector> detector = FastFeatureDetector::create(25, false, FastFeatureDetector::TYPE_9_16);
 	vector<KeyPoint> kpts;
 	detector->detect(image, kpts);
 	int count_points = kpts.size();
 	cout << "OpenCV found: " << count_points << " keypoints \n";
-	*/
+	
 
 	
 	vector<KeyPoint> kpts2;
 	Ptr<Rob7FAST> rob7_fast = new Rob7FAST(25, false);
 	rob7_fast->getKeypoints(image, kpts2);
-	cout << "OpenCV found: " << kpts2.size() << " keypoints \n";
-	//cout << "Test that the class works " << rob7_fast->offsets[0][0]<<"\n";
+	cout << "Rob7 Fast found: " << kpts2.size() << " keypoints \n";
+
+	bool exists;
+	int count = 0;
+	for (KeyPoint rob_kp : kpts2)
+	{
+		exists = false;
+		for (KeyPoint cv_kp : kpts)
+		{
+			if ((rob_kp.pt.x == cv_kp.pt.x) && (rob_kp.pt.y == cv_kp.pt.y))
+			{
+				exists = true;
+				//cout << "rob score: " << rob_kp.response << " cv score " << cv_kp.response << "\n";
+				break;
+			}
+		}
+
+		if (!exists)
+		{
+			count++;
+		}
+	}
+	cout << "There are " << count << " kp found by rob but not by opencv\n";
+
+	compare(kpts, kpts2);
 	
 	
 	/*

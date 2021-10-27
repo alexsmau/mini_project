@@ -1,2 +1,5 @@
 ﻿  Rob7FAST.cpp
+S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp(88,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp(88,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp(88,40): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   FASTcpp.vcxproj -> S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\x64\Debug\FASTcpp.exe
