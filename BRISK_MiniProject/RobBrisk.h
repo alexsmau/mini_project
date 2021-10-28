@@ -12,24 +12,6 @@
 using namespace cv;
 using namespace std;
 
-/*
-*	main.cpp
-*
-*	ROB_Brisk brisk1 = ROB_Brisk(image);
-*	vector<Descriptors>  descriptors = brisk1.get_descriptors();
-* 
-*  RobBrisk
-*  get_descriptors()
-*		1.- Create scale-space Pyramid (Layers are divided into Octaves and Intra-octaves)
-		2.- Compute FAST across scale-space (scores)
-		3.- Pixel level non-maximal suppression
-		4.- Compute sub-pixel maximum across patch
-		5.- Re-interpolate image coordinates from scale-space
-
-
-
-*/
-
 
 class ROB_Brisk
 {
@@ -45,12 +27,14 @@ private:
 	//Feature Detection
 	vector<Mat> layers; //Vector containing the downsampled images
 	vector<vector<KeyPoint>> keypoints; //Vector containing the keypoijnts obtained from FAST
-	vector<Mat> keypointMatrix;
+	vector<vector<vector<KeyPoint>>> layerkpmat;
+	vector<KeyPoint> good_kp; //
 
 
 	void create_scale_space(); //Function for "creating" the Scale-Space pyramid
 	void computeFAST(); //Function for computing the FAST algorithm, returning the keypoints found
 	void nms_scales(); //Function for computing non-maximum supression between layers
+	int getmaxscoreinarea(int layerindex, int x, int y, bool up, bool oct); //Function for getting the maximum score of a 3x3 area
 	void compute_subpixel_maximum(); //Function for computing subpixel maximum
 	void reinterpolate(); //Function for re-interpolating the image coordinates
 

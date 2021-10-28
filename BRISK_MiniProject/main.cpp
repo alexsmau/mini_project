@@ -56,17 +56,10 @@ void cheatBrisk(vector<Mat> images)
 
 int main()
 {	
-
-	Mat image = imread("C://Users//migno//Desktop//Robotics//ROB7//Project//Git//mini_project//BRISK_MiniProject//images//Dog.jpg", IMREAD_GRAYSCALE);
+	Mat image = imread("..//BRISK_MiniProject//images//Dog.jpg", IMREAD_GRAYSCALE);
 	ROB_Brisk brisk1 = ROB_Brisk(image);
-
-	// 
-	//string load_img_folder = "C://Users//migno//Desktop//Robotics//ROB7//Project//Git//mini_project//BRISK_MiniProject//images";
-	//string save_img = load_img_folder + "result";
-
 	
 	brisk1.descriptors();
-	
 
 	/*
 	for (int j = 0; j < 9; j++)
@@ -75,6 +68,4 @@ int main()
 		waitKey(0);
 	}
 	*/
-
-	//cheatBrisk(orderedimg);
 }

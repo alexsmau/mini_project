@@ -10,12 +10,11 @@
 using namespace cv;
 using namespace std;
 
-ROB_Brisk::ROB_Brisk(Mat img) 
+ROB_Brisk::ROB_Brisk(Mat img)
 {
 	image = img.clone();
 }
 
-//Keypoint Detection
 void ROB_Brisk::create_scale_space()
 {
 	vector<vector<Mat>> octaves;
@@ -31,12 +30,12 @@ void ROB_Brisk::create_scale_space()
 	for (int j = 1; j < scales; j = j + 2)
 	{
 		if (octave.empty())
-		{	
+		{
 			layers.push_back(image);
 			resize(image, intraoctave, Size(2 * (image.cols) / 3, 2 * (image.rows) / 3), INTER_LINEAR);
 			layers.push_back(intraoctave);
 			pyrDown(image, octave, Size((image.cols) / 2, (image.rows) / 2));
-			layers.push_back(octave);	
+			layers.push_back(octave);
 		}
 		else
 		{
@@ -48,40 +47,95 @@ void ROB_Brisk::create_scale_space()
 	}
 }
 
-void ROB_Brisk::computeFAST() 
+void ROB_Brisk::computeFAST()
 {
 	int threshold = 50;
 	bool nms = true;
 	int scales = 9;
-	vector<KeyPoint> keypoint;
-	int col = layer[i].cols;
-	int row = image.rows;
-
-	int Matrix[row][col];
-
-	//= Mat::zeros(Size(image.cols, image.rows), CV_8U);
+	layerkpmat.clear();
 
 	for (int i = 0; i < scales; i++)
 	{
-		FAST(layers[i], keypoint, threshold, nms, FastFeatureDetector::DetectorType::TYPE_9_16);
-		keypoints.push_back(keypoint);
+		vector<vector<KeyPoint>> kpMat(layers[i].rows, vector<KeyPoint>(layers[i].cols, KeyPoint()));
+		layerkpmat.push_back(kpMat);
 
-		for (int j = 0; j < keypoint.size(); j++)
+		vector<KeyPoint> kpLayer;
+		kpLayer.clear();
+		FAST(layers[i], kpLayer, threshold, nms, FastFeatureDetector::DetectorType::TYPE_9_16);
+		keypoints.push_back(kpLayer);
+
+		for (KeyPoint kp : kpLayer)
 		{
-			//Matrix[keypoint[j].pt.x][keypoint[j].pt.y] = 1;
-
+			kpMat[kp.pt.y][kp.pt.x].pt.x = kp.pt.x;
+			kpMat[kp.pt.y][kp.pt.x].pt.y = kp.pt.y;
+			if (kp.response <= 0)
+			{
+				kpMat[kp.pt.y][kp.pt.x].response = 1;
+				kp.response = 1;
+			}
+			else
+			{
+				kpMat[kp.pt.y][kp.pt.x].response = kp.response;
+			}
 		}
-		//Matrix[keypoint.pt.x][keypoint.pt.y] = keypoint[score]
 	}
 }
 
+int ROB_Brisk::getmaxscoreinarea(int layerindex, int x, int y, bool up, bool oct)
+{
+	if (oct)// this is an octave
+	{
+		if (up)
+		{
+			x = 2 * x / 3;
+			y = 2 * y / 3;
+		}
+		else
+		{
+			x = 4 * x / 3;
+			y = 4 * y / 3;
+		}
+	}
+	else //this is an intraoctave
+	{
+		if (up)
+		{
+			x = 3 * x / 4;
+			y = 3 * y / 4;
+		}
+		else
+		{
+			x = 3 * x / 2;
+			y = 3 * y / 2;
+		}
+	}
 
+	int max_score = 0;
+	cout << x << " " << y << endl;
+	for (int i = x - 1; i <= x + 1; i++)
+	{
+		for (int j = y - 1; j <= y + 1; j++)
+		{
+			cout << max_score << endl;
+			if (layerkpmat[layerindex][i][j].response > max_score)
+			{
+				max_score = layerkpmat[layerindex][i][j].response;
+			}
+		}
+	}
+	return max_score;
+}
 
-void ROB_Brisk::nms_scales() 
+void ROB_Brisk::nms_scales()
 {
 	/*
+	PROBLEMS:
+	- We need to have access to the scores of all the keypoints found by FAST (Alex?¿)
+	- Does there exist a function that computes NMS between scales?
+	- We need an easy way of NMS2.0, compare the keypoints on adyacent scales and remove the smaller ones
+	- - sort()
+
 	vector<KeyPoints> good_kp;
->>>>>>> Adding what I forgot
 	for layer[k] in layers
 		for kp in layer[k]
 			kp_up = find_kp(layer[k+1])
@@ -92,34 +146,63 @@ void ROB_Brisk::nms_scales()
 					kp.coordinated_interpolation = get_interpolated(kp_position)
 					good_kp.push_back(kp)
 	*/
-	
-	vector<vector<KeyPoint>> good_kp;
 
 	vector<KeyPoint> downscaled;
 	vector<KeyPoint> upscaled;
 
-	int k = i + 1;
-	if (k < img.size())
+	for (int i = 0; i < layerkpmat.size(); i++)
 	{
-		downscaled = keypoints[k];
-	}
-	int m = i - 1;
-	if (m >= 0)
-	{
-		upscaled = keypoints[m];
-	}
+		int max_above = 0;
+		int max_below = 0;
 
-		/*
-			PROBLEMS:
-			- We need to have access to the scores of all the keypoints found by FAST (Alex?¿)
-			- Does there exist a function that computes NMS between scales?
-			- We need an easy way of NMS2.0, compare the keypoints on adyacent scales and remove the smaller ones
-			- - sort()
-		*/
-
+		if (i == 0)
+		{
+			for (int j = 0; j < keypoints[i].size(); j++)
+			{
+				max_above = getmaxscoreinarea(i + 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, true, i % 2 ? false : true);
+				if (max_above > 0) //Checks if they exist
+				{
+					if (keypoints[i][j].response + 1 > max_above)
+					{
+						good_kp.push_back(keypoints[i][j]);
+						cout << "We compute the parabola" << endl;
+					}
+				}
+			}
+		}
+		else if (i > 0 && i < 8)
+		{
+			for (int j = 0; j < keypoints[i].size(); j++)
+			{
+				max_above = getmaxscoreinarea(i + 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, true, i % 2 ? false : true);
+				max_below = getmaxscoreinarea(i - 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, false, i % 2 ? false : true);
+				if (max_above > 0 && max_below > 0) //Checks if they exist
+				{
+					if (keypoints[i][j].response + 1 > max_above && keypoints[i][j].response + 1 > max_below) //TODO: Remember to change this, we cheated
+					{
+						good_kp.push_back(keypoints[i][j]);
+						cout << "We compute the parabola" << endl;
+					}
+				}
+			}
+		}
+		else
+		{
+			for (int j = 0; j < keypoints[i].size(); j++)
+			{
+				max_below = getmaxscoreinarea(i - 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, false, i % 2 ? false : true);
+				if (max_below > 0) //Checks if they exist
+				{
+					if (keypoints[i][j].response + 1 > max_below)
+					{
+						good_kp.push_back(keypoints[i][j]);
+						cout << "We compute the parabola" << endl;
+					}
+				}
+			}
+		}
+	}
 }
-
-
 
 void ROB_Brisk::compute_subpixel_maximum() {}
 void ROB_Brisk::reinterpolate() {}
@@ -130,7 +213,7 @@ void ROB_Brisk::pair_generation() {}
 void ROB_Brisk::pair_division() {}
 void ROB_Brisk::distance_computation() {}
 
-void ROB_Brisk::descriptors() 
+void ROB_Brisk::descriptors()
 {
 	create_scale_space();
 	computeFAST();

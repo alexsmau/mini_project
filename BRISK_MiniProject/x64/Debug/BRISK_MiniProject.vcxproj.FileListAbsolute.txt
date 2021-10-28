@@ -1,1 +1,2 @@
 C:\Users\migno\Desktop\Robotics\ROB7\Project\Git\mini_project\BRISK_MiniProject\x64\Debug\BRISK_MiniProject.exe
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\x64\Debug\BRISK_MiniProject.exe
