@@ -15,6 +15,7 @@ using namespace std;
 void compare(vector<KeyPoint> kpts1, vector<KeyPoint> kpts2)
 {
 	bool exists;
+	int count = 0;
 	for (KeyPoint kp1 : kpts1)
 	{
 		exists = false;
@@ -23,15 +24,17 @@ void compare(vector<KeyPoint> kpts1, vector<KeyPoint> kpts2)
 			if ((kp1.pt.x == kp2.pt.x) && (kp1.pt.y == kp2.pt.y))
 			{
 				exists = true;
+				count++;
 				break;
 			}
 		}
 
-		if (!exists)
+		if (!exists && (count == 2))
 		{
 			cout << "Keypoint at col " << kp1.pt.x << " and row " << kp1.pt.y;
 			return;
 		}
+		exists = false;
 	}
 
 }
@@ -70,10 +73,10 @@ int main()
 	int count_points = kpts.size();
 	cout << "OpenCV found: " << count_points << " keypoints \n";
 	
-
-	
+	//Mat blur_img;
+	//GaussianBlur(image, blur_img, Size(3, 3), 0, 0);
 	vector<KeyPoint> kpts2;
-	Ptr<Rob7FAST> rob7_fast = new Rob7FAST(25, false);
+	Ptr<Rob7FAST> rob7_fast = new Rob7FAST(25, true);
 	rob7_fast->getKeypoints(image, kpts2);
 	cout << "Rob7 Fast found: " << kpts2.size() << " keypoints \n";
 

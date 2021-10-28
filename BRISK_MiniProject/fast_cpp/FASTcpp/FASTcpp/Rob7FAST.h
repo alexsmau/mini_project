@@ -21,6 +21,9 @@ private:
 	int offsets[16][2];
 	// Maximum and minimum values a pixel can have. I guess 255 and 0.
 	int maxIntensity, minIntensity;
+
+	bool debug;
+
 	int getPixelScore(int circle_of_pixels[16], int center_pixel);
 
 public:

@@ -13,7 +13,7 @@ Rob7FAST::Rob7FAST(int threshold, bool non_maximum_suppression)
 	offsets[3][0] = -1;
 	offsets[4][0] = 0;
 	offsets[5][0] = 1;
-	offsets[6][0] = 1;
+	offsets[6][0] = 2;
 	offsets[7][0] = 3;
 	offsets[8][0] = 3;
 	offsets[9][0] = 3;
@@ -43,6 +43,8 @@ Rob7FAST::Rob7FAST(int threshold, bool non_maximum_suppression)
 	maxIntensity = 255;
 	minIntensity = 0;
 	min_nr_contiguous = 12;
+
+	debug = false;
 }
 
 void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
@@ -51,7 +53,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 	int ll, cc;
 	int debug_count = 0;
 	try {
-		if (!nms)
+		if (nms)
 		{
 			std::cout << "rows " << image.rows << " cols " << image.cols << "\n";
 			for (int i = 3; i < (image.rows - 3); i++)
@@ -67,14 +69,25 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					}
 					
 					//std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
-					if (i == 3 && j == 338)
+					if (i == 3 && j == 363)
 					{
 						for (int k = 0; k < 16; k++)
 							std::cout << circle_of_pixels[k] << " ";
 						std::cout << "\n center pix: " << ((int)(image.at<unsigned char>(i, j))) << "\n";
+						std::cout << "\nThis is the surrpunding pix mat:\n";
+						debug = true;
+						for (int k = i - 3; k <= i + 3; k++)
+						{
+							for (int l = j - 3; l <= j + 3; l++)
+							{
+								std::cout << ((int)(image.at<unsigned char>(k, l))) << " ";
+							}
+							std::cout << "\n";
+						}
 					}
-					
+					debug = true;
 					int fast_score = getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(i, j))));
+					debug = false;
 					if (fast_score != -1)
 					{
 						if (fast_score > 1)
@@ -114,6 +127,15 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 	Imax = (center_pixel > (maxIntensity - t)) ? maxIntensity : (center_pixel + t);
 	Imin = (center_pixel < (minIntensity + t)) ? minIntensity : (center_pixel - t);
 
+	if (debug && false)
+	{
+		std::cout << "Circle of pixels\n";
+		for (int i = 0; i < 16; i++)
+			std::cout << circle_of_pixels[i] << " ";
+		std::cout << "\nImax "<<Imax<<" Imin "<<Imin<<"\n";
+		//for (int i = 0; i < 16; i++)
+		//	std::cout << pixel_status[i] << " ";
+	}
 	/**
 	 * Create a 1D array of size nr_of_circle_pixels that will indicate the relationship
 	 * between intensity of each pixel on the circle an the center pixel's intensity.
@@ -134,7 +156,7 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 		}
 		else
 		{
-			pixel_status[0] = 0;
+			pixel_status[i] = 0;
 			invalid_count++;
 			if (invalid_count > max_invalid)
 			{
@@ -142,7 +164,15 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 			}
 		}
 	}
-
+	if (debug&&false)
+	{
+		std::cout << "Circle of pixels\n";
+		for (int i = 0; i < 16; i++)
+			std::cout << circle_of_pixels[i]<< " ";
+		std::cout << "\nStatus\n";
+		for (int i = 0; i < 16; i++)
+			std::cout << pixel_status[i] << " ";
+	}
 	// Find the first change of valid status of pixels.
 	// TODO: be more clever about this. at some point. maybe...
 	bool found_change = false;
@@ -211,6 +241,19 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 		last_index = idx;
 	}
 
+	if (debug)
+	{
+		std::cout << "\nCircle of pixels\n";
+		for (int i = 0; i < 16; i++)
+			std::cout << circle_of_pixels[i] << " ";
+		std::cout << "\nStatus\n";
+		for (int i = 0; i < 16; i++)
+			std::cout << std::setw(3) << pixel_status[i] << " ";
+		std::cout << "\ncount_array\n";
+		for (int i = 0; i < 16; i++)
+			std::cout << std::setw(3) << count_array[i] << " ";
+	}
+
 	if (max_contiguous < min_nr_contiguous)
 	{
 		return -1;
@@ -222,8 +265,10 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 			int score = 0;
 			int count = max_contiguous;
 			int index = last_index;
+			std::cout << "\n score deltas:\n";
 			while (count > 0)
 			{
+				std::cout << ((center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel)) << " ";
 				score += (center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel);
 				index--;
 				if (index < 0)
@@ -232,7 +277,7 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 				}
 				count--;
 			}
-
+			std::cout << "\nscore is " << score << "\n";
 			return score;
 		}
 		else
