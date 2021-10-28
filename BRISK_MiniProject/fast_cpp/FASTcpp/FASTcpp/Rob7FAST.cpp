@@ -47,46 +47,177 @@ Rob7FAST::Rob7FAST(int threshold, bool non_maximum_suppression)
 	debug = false;
 }
 
+int Rob7FAST::getPixelScoreFromImage(cv::Mat image, int x, int y)
+{
+	int circle_of_pixels[16];
+	int ll, cc;
+
+	for (int k = 0; k < 16; k++)
+	{
+		ll = x + offsets[k][0];
+		cc = y + offsets[k][1];
+		circle_of_pixels[k] = (int)(image.at<unsigned char>(ll, cc));
+	}
+
+	//std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
+	/*
+	if (i == 3 && j == 363)
+	{
+		for (int k = 0; k < 16; k++)
+			std::cout << circle_of_pixels[k] << " ";
+		std::cout << "\n center pix: " << ((int)(image.at<unsigned char>(i, j))) << "\n";
+		std::cout << "\nThis is the surrpunding pix mat:\n";
+		debug = true;
+		for (int k = i - 3; k <= i + 3; k++)
+		{
+			for (int l = j - 3; l <= j + 3; l++)
+			{
+				std::cout << ((int)(image.at<unsigned char>(k, l))) << " ";
+			}
+			std::cout << "\n";
+		}
+	}
+	debug = true;
+	*/
+	return getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(x, y))));
+}
+
+
 void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 {
 	int circle_of_pixels[16];
 	int ll, cc;
 	int debug_count = 0;
+	int fast_score;
+	int max_score;
+	int max_r, max_c;
+	int debug_r, debug_c,debug_foo =0;
+
 	try {
 		if (nms)
 		{
-			std::cout << "rows " << image.rows << " cols " << image.cols << "\n";
+			int total_cols = image.cols - 6;
+			int remaining_cols = total_cols % 3;
+			int total_rows = image.rows - 6;
+			int remaining_rows = total_rows % 3;
+			for (int i = 3; i < (image.rows - 3) - remaining_rows; i += 3)
+			{
+				for (int j = 3; j < (image.cols - 3) - remaining_cols; j += 3)
+				{
+					max_score = -1;
+					for (int r = 0; r < 3; r++)
+					{
+						for (int c = 0; c < 3; c++)
+						{
+							//if (i>=3996)
+							//	std::cout << "Foo1 Look at r: " << i + r << " c: " << j + c << "\n";
+							debug_foo = 1;
+							debug_r = i + r;
+							debug_c = j + c;
+							fast_score = getPixelScoreFromImage(image, i + r, j + c);
+							if (fast_score > max_score)
+							{
+								max_score = fast_score;
+								max_r = i + r;
+								max_c = j + c;
+							}
+						}
+					}
+					if (max_score != -1)
+					{
+						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+					}
+				}
+				if (remaining_cols)
+				{
+					max_score = -1;
+					for (int r = 0; r < 3; r++)
+					{
+						for (int c = (total_cols - remaining_cols); c < total_cols; c++)
+						{
+							//std::cout << "Foo2 Look at r: " << i + r << " c: " <<  c << "\n";
+							debug_foo = 2;
+							debug_r = i + r;
+							debug_c = c;
+							fast_score = getPixelScoreFromImage(image, r + i, c);
+							if (fast_score > max_score)
+							{
+								max_score = fast_score;
+								max_r = r + i;
+								max_c = c;
+							}
+						}
+					}
+					if (max_score != -1)
+					{
+						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+					}
+				}
+				//std::cout << "\n\nline done\n";
+			}
+			if (remaining_rows)
+			{
+				for (int j = 3; j < (image.cols - 3); j += 3)
+				{
+					max_score = -1;
+					for (int r = (total_rows - remaining_rows); r < (total_rows); r++)
+					{
+						for (int c = 0; c < 3; c++)
+						{
+							//std::cout << "Foo3 Look at r: " << r << " c: " << j + c << "\n";
+							debug_foo = 3;
+							debug_r = r;
+							debug_c = j + c;
+							fast_score = getPixelScoreFromImage(image, r, j + c);
+							if (fast_score > max_score)
+							{
+								max_score = fast_score;
+								max_r = r;
+								max_c = j + c;
+							}
+						}
+					}
+					if (max_score != -1)
+					{
+						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+					}
+				}
+			}
+			if (remaining_cols && remaining_rows)
+			{
+				max_score = -1;
+				for (int r = (total_rows - remaining_rows); r < (total_rows); r++)
+				{
+					for (int c = (total_cols - remaining_cols); c < total_cols; c++)
+					{
+						//std::cout << "Foo4 Look at r: " <<  r << " c: " <<  c << "\n";
+						debug_foo = 4;
+						debug_r = r;
+						debug_c = c;
+						fast_score = getPixelScoreFromImage(image, r, c);
+						if (fast_score > max_score)
+						{
+							max_score = fast_score;
+							max_r = r;
+							max_c = c;
+						}
+					}
+				}
+				if (max_score != -1)
+				{
+					keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+				}
+			}
+		}
+		else
+		{
+			//std::cout << "rows " << image.rows << " cols " << image.cols << "\n";
 			for (int i = 3; i < (image.rows - 3); i++)
 			{
 				for (int j = 3; j < (image.cols - 3); j++)
 				{
 
-					for (int k = 0; k < 16; k++)
-					{
-						ll = i + offsets[k][0];
-						cc = j + offsets[k][1];
-						circle_of_pixels[k] = (int)(image.at<unsigned char>(ll, cc));
-					}
-					
-					//std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
-					if (i == 3 && j == 363)
-					{
-						for (int k = 0; k < 16; k++)
-							std::cout << circle_of_pixels[k] << " ";
-						std::cout << "\n center pix: " << ((int)(image.at<unsigned char>(i, j))) << "\n";
-						std::cout << "\nThis is the surrpunding pix mat:\n";
-						debug = true;
-						for (int k = i - 3; k <= i + 3; k++)
-						{
-							for (int l = j - 3; l <= j + 3; l++)
-							{
-								std::cout << ((int)(image.at<unsigned char>(k, l))) << " ";
-							}
-							std::cout << "\n";
-						}
-					}
-					debug = true;
-					int fast_score = getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(i, j))));
+					fast_score = getPixelScoreFromImage(image, i, j);
 					debug = false;
 					if (fast_score != -1)
 					{
@@ -111,7 +242,9 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 	catch (...)
 	{
 		std::cout << "kill me\n";
-		while(true){}
+		std::cout << "Died at r: " << debug_r << " c: " << debug_c << " foo " << debug_foo << "\n";
+		//std::cout << "remaining_rows: " << remaining_rows << " remaining_cols: " << remaining_cols <<"\n";
+		//while(true){}
 		
 	}
 
@@ -241,7 +374,7 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 		last_index = idx;
 	}
 
-	if (debug)
+	if (debug && false)
 	{
 		std::cout << "\nCircle of pixels\n";
 		for (int i = 0; i < 16; i++)
@@ -265,10 +398,10 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 			int score = 0;
 			int count = max_contiguous;
 			int index = last_index;
-			std::cout << "\n score deltas:\n";
+			//std::cout << "\n score deltas:\n";
 			while (count > 0)
 			{
-				std::cout << ((center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel)) << " ";
+				//std::cout << ((center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel)) << " ";
 				score += (center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel);
 				index--;
 				if (index < 0)
@@ -277,7 +410,7 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 				}
 				count--;
 			}
-			std::cout << "\nscore is " << score << "\n";
+			//std::cout << "\nscore is " << score << "\n";
 			return score;
 		}
 		else

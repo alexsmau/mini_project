@@ -39,6 +39,26 @@ void compare(vector<KeyPoint> kpts1, vector<KeyPoint> kpts2)
 
 }
 
+void compare2(vector<KeyPoint> kpts1, vector<KeyPoint> kpts2)
+{	
+	int minD, distance;
+	for (KeyPoint kp1 : kpts1)
+	{
+		minD = 10000;
+		for (KeyPoint kp2 : kpts2)
+		{
+			distance = (kp1.pt.x > kp2.pt.x) ? (kp1.pt.x - kp2.pt.x) : (kp2.pt.x - kp1.pt.x);
+			distance += (kp1.pt.y > kp2.pt.y) ? (kp1.pt.y - kp2.pt.y) : (kp2.pt.y - kp1.pt.y);
+
+			if (distance < minD)
+			{
+				minD = distance;
+			}
+		}
+		cout << "dist: " << minD << "\n";
+	}
+}
+
 int main()
 {
 	Mat image = imread("IMG_20201231_194210.jpg", IMREAD_GRAYSCALE);
@@ -67,7 +87,7 @@ int main()
 
 	//cout <<(int)(image.at<unsigned char>(3, 3) )<< " ";
 	
-	Ptr<FastFeatureDetector> detector = FastFeatureDetector::create(25, false, FastFeatureDetector::TYPE_9_16);
+	Ptr<FastFeatureDetector> detector = FastFeatureDetector::create(25, true, FastFeatureDetector::TYPE_9_16);
 	vector<KeyPoint> kpts;
 	detector->detect(image, kpts);
 	int count_points = kpts.size();
@@ -103,7 +123,7 @@ int main()
 	cout << "There are " << count << " kp found by rob but not by opencv\n";
 
 	compare(kpts, kpts2);
-	
+	compare2(kpts2, kpts);
 	
 	/*
 	String windowName = "My Image"; //Name of the window

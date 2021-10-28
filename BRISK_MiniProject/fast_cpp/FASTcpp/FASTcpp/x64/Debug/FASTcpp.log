@@ -1,5 +1,13 @@
-﻿  Rob7FAST.cpp
-S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp(101,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp(101,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp(101,40): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+﻿  main.cpp
+S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\main.cpp(50,25): warning C4244: '=': conversion from '_Tp' to 'int', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\main.cpp(51,85): warning C4244: '+=': conversion from '_Tp' to 'int', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\FASTcpp\main.cpp(93,32): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   FASTcpp.vcxproj -> S:\AAU\Year1\mini_project\BRISK_MiniProject\fast_cpp\FASTcpp\x64\Debug\FASTcpp.exe

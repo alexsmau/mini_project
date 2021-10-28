@@ -25,7 +25,7 @@ private:
 	bool debug;
 
 	int getPixelScore(int circle_of_pixels[16], int center_pixel);
-
+	int getPixelScoreFromImage(cv::Mat image, int x, int y);
 public:
 	Rob7FAST(int threshold = 10, bool non_maximum_suppression = true);
 	void getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints);
