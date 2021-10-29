@@ -56,7 +56,15 @@ void cheatBrisk(vector<Mat> images)
 
 int main()
 {	
-	Mat image = imread("..//BRISK_MiniProject//images//Dog.jpg", IMREAD_GRAYSCALE);
+	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
+	char alberto_path[] = "..//BRISK_MiniProject//images//Dog.jpg";
+	Mat image = imread(asmau_img_path, IMREAD_GRAYSCALE);
+	if (image.empty())
+	{
+		cout << "Could not open or find the image" << endl;
+		cin.get(); //wait for any key press
+		return -1;
+	}
 	ROB_Brisk brisk1 = ROB_Brisk(image);
 	
 	brisk1.descriptors();

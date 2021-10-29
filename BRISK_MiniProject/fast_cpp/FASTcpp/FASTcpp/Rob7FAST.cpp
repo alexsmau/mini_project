@@ -157,7 +157,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 			}
 			if (remaining_rows)
 			{
-				for (int j = 3; j < (image.cols - 3); j += 3)
+				for (int j = 3; j < (image.cols - 3) - remaining_cols; j += 3)
 				{
 					max_score = -1;
 					for (int r = (total_rows - remaining_rows); r < (total_rows); r++)
@@ -244,7 +244,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 		std::cout << "kill me\n";
 		std::cout << "Died at r: " << debug_r << " c: " << debug_c << " foo " << debug_foo << "\n";
 		//std::cout << "remaining_rows: " << remaining_rows << " remaining_cols: " << remaining_cols <<"\n";
-		//while(true){}
+		while(true){}
 		
 	}
 

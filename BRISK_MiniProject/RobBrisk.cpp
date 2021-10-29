@@ -7,6 +7,8 @@
 #include <iostream>
 #include "RobBrisk.h"
 
+#include "./fast_cpp/FASTcpp/FASTcpp/Rob7FAST.h"
+
 using namespace cv;
 using namespace std;
 
@@ -49,10 +51,11 @@ void ROB_Brisk::create_scale_space()
 
 void ROB_Brisk::computeFAST()
 {
-	int threshold = 50;
+	int threshold = 25;
 	bool nms = true;
 	int scales = 9;
 	layerkpmat.clear();
+	Ptr<Rob7FAST> rob7_fast = new Rob7FAST(threshold, true);
 
 	for (int i = 0; i < scales; i++)
 	{
@@ -61,7 +64,8 @@ void ROB_Brisk::computeFAST()
 
 		vector<KeyPoint> kpLayer;
 		kpLayer.clear();
-		FAST(layers[i], kpLayer, threshold, nms, FastFeatureDetector::DetectorType::TYPE_9_16);
+		//FAST(layers[i], kpLayer, threshold, nms, FastFeatureDetector::DetectorType::TYPE_9_16);
+		rob7_fast->getKeypoints(layers[i], kpLayer);
 		keypoints.push_back(kpLayer);
 
 		for (KeyPoint kp : kpLayer)
