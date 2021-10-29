@@ -90,36 +90,7 @@ void ROB_Brisk::computeFAST()
 		}
 		layerkpmat.push_back(kpMat);
 	}
-	/*
-	int count = 0;
-	cout << "\n";
-	for (vector<KeyPoint> kp_list : keypoints)
-	{
-		cout << "Layer: " << count << " has " << kp_list.size() <<" keypoints.\n";
-		count++;
-	}
 
-	//count = 0;
-	int kp_count;
-	int r, c;
-	cout << "\n";
-	for (int i= 0; i< layerkpmat.size(); i++)
-	{
-		r = layerkpmat[i].size();
-		c = layerkpmat[i][0].size();
-		cout << "Layer: " << i << " KP_matrix has rows: " << r << " cols: " << c << " ";
-		kp_count = 0;
-		for (int k = 0; k < r; k++)
-		{
-			for (int l = 0; l < c; l++)
-			{
-				if (layerkpmat[i][k][l].response > 0)
-					kp_count++;
-			}
-		}
-		cout << " and has " << kp_count << " keypoints.\n";
-	}
-	*/
 }
 
 int ROB_Brisk::getmaxscoreinarea(int layerindex, int x, int y, bool up, bool oct)
@@ -159,7 +130,6 @@ int ROB_Brisk::getmaxscoreinarea(int layerindex, int x, int y, bool up, bool oct
 			if (layerkpmat[layerindex][i][j].response > max_score)
 			{
 				max_score = layerkpmat[layerindex][i][j].response;
-				//cout << max_score << endl;
 			}
 		}
 	}
@@ -305,21 +275,15 @@ void ROB_Brisk::max_score_form_parabola(double scores[3], int mid_point_layer, d
 	*max_point_score = yp;
 }
 
+void ROB_Brisk::extrapolate_kp_location_in_image(int kp_row, int kp_col, double layer, int* image_row, int* image_col)
+{
+	// TODO: add the logic in this function;
+	*image_row = 0;
+	*image_col = 0;
+}
+
 void ROB_Brisk::nms_scales()
 {
-	/*
-	vector<KeyPoints> good_kp;
-	for layer[k] in layers
-		for kp in layer[k]
-			kp_up = find_kp(layer[k+1])
-			kp_down = find_kp(layer[k-1])
-			if (kp_up && kp_down EXIST)
-				if (score[kp] > (score[kp_up] && score[kp_down]))
-					kp.parabola = get_score((score[kp],scale[kp]),(score[kp_up],scale[kp_up]),(score[kp_down],scale[kp_up]))
-					kp.coordinated_interpolation = get_interpolated(kp_position)
-					good_kp.push_back(kp)
-	*/
-
 	for (int i = 0; i < layerkpmat.size(); i++)
 	{
 		int max_above = 0;
@@ -351,7 +315,7 @@ void ROB_Brisk::nms_scales()
 				{
 					if (keypoints[i][j].response > max_above && keypoints[i][j].response > max_below) //TODO: Remember to change this (+ 1), we cheated
 					{
-						good_kp.push_back(keypoints[i][j]);
+						//good_kp.push_back(keypoints[i][j]);
 						double scores[3];
 						scores[0] = (double)max_below;
 						scores[1] = (double)keypoints[i][j].response;
@@ -360,6 +324,13 @@ void ROB_Brisk::nms_scales()
 						max_score_form_parabola(scores, i, &max_point_layer, &max_point_score);
 						cout << "At layer: " << i << " the current score is : " << keypoints[i][j].response << " below is : " << max_below << " above is : " << max_above << "\n";
 						cout << "Parabola thingy sais it is at layer: " << max_point_layer << " and has a score of: " << max_point_score << "\n\n";
+						int img_r, img_c;
+						extrapolate_kp_location_in_image(keypoints[i][j].pt.y, keypoints[i][j].pt.x, max_point_layer, &img_r, &img_c);
+						/**
+						 * I think this is what we need to do here: push to the good list a new keypoint that is found in the original image
+						 * exatrpolated from the keypoint we found in this layer and the max_layer/score we found from the parabola. 
+						 */
+						good_kp.push_back(cv::KeyPoint(img_c, img_r, 1, 1, max_point_score, 0, -1));
 					}
 				}
 			}
