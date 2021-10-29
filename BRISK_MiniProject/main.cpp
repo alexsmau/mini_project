@@ -68,6 +68,22 @@ int main()
 	ROB_Brisk brisk1 = ROB_Brisk(image);
 	
 	brisk1.descriptors();
+	
+	double x[3], y[3];
+	x[0] = 4;
+	x[1] = 8;
+	x[2] = 16;
+	y[0] = 34;
+	y[1] = 55;
+	y[2] = 22;
+	double coeff[5];
+	brisk1.computeQuadraticCoeff(x, y, coeff);
+	cout << "\ncoeff: ";
+	for (int i = 0; i < 3; i++)
+	{
+		cout << coeff[i] << " ";
+	}
+	cout << "\n";
 
 	/*
 	for (int j = 0; j < 9; j++)

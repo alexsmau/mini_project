@@ -125,7 +125,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					}
 					if (max_score != -1)
 					{
-						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, max_score, 0, -1));
 					}
 				}
 				if (remaining_cols)
@@ -150,7 +150,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					}
 					if (max_score != -1)
 					{
-						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, max_score, 0, -1));
 					}
 				}
 				//std::cout << "\n\nline done\n";
@@ -179,7 +179,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					}
 					if (max_score != -1)
 					{
-						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, max_score, 0, -1));
 					}
 				}
 			}
@@ -205,7 +205,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 				}
 				if (max_score != -1)
 				{
-					keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, fast_score, 0, -1));
+					keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, max_score, 0, -1));
 				}
 			}
 		}
