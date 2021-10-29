@@ -1,14 +1,4 @@
 ﻿  RobBrisk.cpp
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(69,15): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
-          with
-          [
-              _Tp=float
-          ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(69,24): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
-          with
-          [
-              _Tp=float
-          ]
 C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(70,15): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
           with
           [
@@ -19,38 +9,37 @@ C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(7
           [
               _Tp=float
           ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(73,16): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(71,15): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
           with
           [
               _Tp=float
           ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(73,25): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(71,24): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
           with
           [
               _Tp=float
           ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(78,16): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(74,16): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
           with
           [
               _Tp=float
           ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(78,25): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(74,25): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
           with
           [
               _Tp=float
           ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(91,9): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(79,16): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(79,25): warning C4244: 'argument': conversion from '_Tp' to 'const unsigned __int64', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
 C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(123,45): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(163,82): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
-          with
-          [
-              _Tp=float
-          ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(163,60): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
-          with
-          [
-              _Tp=float
-          ]
 C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(178,82): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
           with
           [
@@ -61,22 +50,32 @@ C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(1
           [
               _Tp=float
           ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(179,82): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
-          with
-          [
-              _Tp=float
-          ]
-C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(179,60): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
-          with
-          [
-              _Tp=float
-          ]
 C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(194,82): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
           with
           [
               _Tp=float
           ]
 C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(194,60): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(195,82): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(195,60): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(210,82): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
+          with
+          [
+              _Tp=float
+          ]
+C:\Users\alber\Desktop\MiniProject\mini_project\BRISK_MiniProject\RobBrisk.cpp(210,60): warning C4244: 'argument': conversion from '_Tp' to 'int', possible loss of data
           with
           [
               _Tp=float
