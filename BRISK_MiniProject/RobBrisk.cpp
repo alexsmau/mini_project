@@ -313,7 +313,7 @@ void ROB_Brisk::nms_scales()
 				max_below = getmaxscoreinarea(i - 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, false, i % 2 ? false : true);
 				if (max_above > 0 && max_below > 0) //Checks if they exist
 				{
-					if (keypoints[i][j].response > max_above && keypoints[i][j].response > max_below) //TODO: Remember to change this (+ 1), we cheated
+					if (keypoints[i][j].response > max_above && keypoints[i][j].response > max_below)
 					{
 						//good_kp.push_back(keypoints[i][j]);
 						double scores[3];
@@ -366,7 +366,10 @@ void ROB_Brisk::distance_computation() {}
 void ROB_Brisk::descriptors()
 {
 	create_scale_space();
+	cout << "Finished creating scale space\n";
 	computeFAST();
+	cout << "Finished computing fast on each layer\n";
 	nms_scales();
+	cout << "Finished doing the inter layer nms\n";
 
 }

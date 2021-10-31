@@ -23,6 +23,7 @@
 #include <opencv2/calib3d.hpp>
 #include <iostream>
 #include "RobBrisk.h"
+#include "Rob7BriskDescriptor.h"
 
 using namespace cv;
 using namespace std;
@@ -65,6 +66,7 @@ int main()
 		cin.get(); //wait for any key press
 		return -1;
 	}
+#if 0
 	ROB_Brisk brisk1 = ROB_Brisk(image);
 	
 	brisk1.descriptors();
@@ -84,7 +86,9 @@ int main()
 		cout << coeff[i] << " ";
 	}
 	cout << "\n";
-
+#endif
+	Rob7BriskDescriptor briskDes = Rob7BriskDescriptor(KeyPoint(100, 100, 1, 1, 523, 0, -1), 1);
+	briskDes.createDescriptor(image);
 	/*
 	for (int j = 0; j < 9; j++)
 	{
