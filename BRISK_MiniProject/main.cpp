@@ -28,7 +28,7 @@
 using namespace cv;
 using namespace std;
 
-
+#if 0
 void cheatBrisk(vector<Mat> images)
 {
 	vector<KeyPoint> keypointsA, keypointsB;
@@ -54,9 +54,11 @@ void cheatBrisk(vector<Mat> images)
 	imshow("BRISK All Matches", all_matches);
 	waitKey(0);
 }
+#endif
 
 int main()
 {	
+#if 1
 	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
 	char alberto_path[] = "..//BRISK_MiniProject//images//Dog.jpg";
 
@@ -70,7 +72,8 @@ int main()
 
 	ROB_Brisk brisk1 = ROB_Brisk(image);
 	brisk1.calculate_descriptors();
-#if 0
+#else
+	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
 	char book_small[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\book_small.jpg";
 	char cropped_book[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\cropped_book.jpg";
 
