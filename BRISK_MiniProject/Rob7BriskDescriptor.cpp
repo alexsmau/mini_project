@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -25,6 +26,10 @@ Rob7BriskDescriptor::Rob7BriskDescriptor(KeyPoint kp, int scale)
 	circle_pixel_radius[2] = 11;
 	circle_pixel_radius[3] = 15;
 
+	for (int i = 0; i < 16; i++)
+	{
+		descriptor[i] = 0;
+	}
 }
 
 void Rob7BriskDescriptor::createDescriptor(Mat image)
@@ -33,7 +38,20 @@ void Rob7BriskDescriptor::createDescriptor(Mat image)
 	generatePoints();
 	compute_short_and_long_pairs();
 	double orientation = compute_orientation(image);
-	cout << "orientation is: " << orientation<<"\n";
+	//cout << "orientation is: " << orientation << "\n";
+	for (int circle = 0; circle < nr_of_circles; circle++)
+	{
+		circle_offsets[circle] += orientation;
+	}
+	generatePoints();
+	compute_descriptor_bits(image);
+#if 0 
+	for (int i = 0; i < 16; i++)
+	{
+		//cout << bitset  std::bitset<32>(descriptor[i]) << "\n";
+		printf("i=%2d -> %x \n", i, descriptor[i]);
+	}
+#endif
 }
 
 static void print_debug_mat(int debug_mat[41][41])
@@ -137,35 +155,42 @@ void Rob7BriskDescriptor::compute_short_and_long_pairs()
 		}
 	}
 	count_long_pairs = long_pair_idx;
-	cout << "There are " << short_pair_idx << " short pairs idx\n";
-	cout << "There are " << long_pair_idx << " long pairs idx\n";
+	//cout << "There are " << short_pair_idx << " short pairs idx\n";
+	//cout << "There are " << long_pair_idx << " long pairs idx\n";
 }
 
 double Rob7BriskDescriptor::compute_orientation(Mat img)
 {
 	double gx, gy;
-	double average_gx = 0;
-	double average_gy = 0;
+	double cma_gx = 0;
+	double cma_gy = 0;
 	for (int i = 0; i < count_long_pairs; i++)
 	{
 		calculate_gardient(long_pairs[i][0], long_pairs[i][1], &gx, &gy, img);
-		average_gx += gx;
-		average_gy += gy;
+		cma_gx = (gx + i*cma_gx)/(i+1);
+		cma_gy = (gy + i*cma_gy)/(i+1);
+		//cout << "gx " << gx << " gy " << gy << "\n";
+		//cout << "cma_gx " << cma_gx << " cma_gy " << cma_gy << "\n";
 	}
-	average_gx /= count_long_pairs;
-	average_gy /= count_long_pairs;
+	//cout << "cma_gx " << cma_gx << " cma_gy " << cma_gy << "\n";
 
-	return atan2(average_gy, average_gx);
+	return atan2(cma_gy, cma_gx);
 }
 
 void Rob7BriskDescriptor::calculate_gardient(int point1_idx, int point2_idx, double* gx, double* gy, Mat image)
 {
+	double sigma_gain = 10000000000;
 	double distance = calculateDistance(point1_idx, point2_idx);
-	double intensity1 = gauss(get_point_sigma(point1_idx), ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1]))));
-	double intensity2 = gauss(get_point_sigma(point2_idx), ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1]))));
+	//double intensity1 = gauss(get_point_sigma(point1_idx) * sigma_gain, ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1]))));
+	//double intensity2 = gauss(get_point_sigma(point2_idx) * sigma_gain, ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1]))));
+	double intensity1 = ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1])));
+	double intensity2 = ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1])));
 	double magnitude = (intensity1 - intensity2) / distance;
-	*gx = (points[point1_idx][0] - points[point2_idx][0]) / magnitude;
-	*gy = (points[point1_idx][1] - points[point2_idx][1]) / magnitude;
+	//cout << "intensity1 " << intensity1 << " intensity2 " << intensity2 << " magnitude " << magnitude << " distance " << distance << "\n";
+	
+	*gx = (points[point1_idx][0] - points[point2_idx][0]) * magnitude;
+	*gy = (points[point1_idx][1] - points[point2_idx][1]) * magnitude;
+	//cout << "gx " << *gx << " gy " << *gy << "\n";
 }
 
 double Rob7BriskDescriptor::get_point_sigma(int point_idx)
@@ -179,6 +204,44 @@ double Rob7BriskDescriptor::get_point_sigma(int point_idx)
 	if (25 >= point_idx && point_idx <= 39)
 		return distance_per_circle[2];
 
-	if (40 >= point_idx && point_idx <= 59)
-		return distance_per_circle[3];
+	return distance_per_circle[3];
+}
+
+void Rob7BriskDescriptor::compute_descriptor_bits(Mat image)
+{
+	double intensity_j, intensity_i;
+	int img_r_i, img_c_i, img_r_j, img_c_j;
+	for (int i = 0; i < 512; i++)
+	{
+		img_r_i = points[short_pairs[i][0]][0];
+		img_c_i = points[short_pairs[i][0]][1];
+		img_r_j = points[short_pairs[i][1]][0];
+		img_c_j = points[short_pairs[i][1]][1];
+		intensity_i = ((double)(image.at<unsigned char>(img_r_i, img_c_i)));
+		intensity_j = ((double)(image.at<unsigned char>(img_r_j, img_c_j)));
+
+		if (intensity_j > intensity_i)
+		{
+			descriptor[i / 32] |= (1 << (i % 32));
+		}
+	}
+}
+
+int Rob7BriskDescriptor::compareTo(Rob7BriskDescriptor desc)
+{
+	uint32_t xor_val;
+	int count = 0;
+	for (int i = 0; i < 16; i++)
+	{
+		xor_val = descriptor[i] ^ desc.descriptor[i];
+		if (xor_val)
+		{
+			count++;
+		}
+		while (xor_val = (xor_val & (xor_val - 1)))
+		{
+			count++;
+		}
+	}
+	return count;
 }

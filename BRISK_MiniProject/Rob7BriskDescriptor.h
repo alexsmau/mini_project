@@ -32,9 +32,12 @@ private:
 	void calculate_gardient(int point1_idx, int point2_idx, double *gx, double *gy, Mat image);
 	double get_point_sigma(int point_idx);
 	double compute_orientation(Mat img);
+	void compute_descriptor_bits(Mat image);
+	
 public:
 	Rob7BriskDescriptor(KeyPoint kp, int scale);
 	void createDescriptor(Mat image);
+	int compareTo(Rob7BriskDescriptor descriptor);
 };
 
 #endif

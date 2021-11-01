@@ -70,7 +70,7 @@ int main()
 	ROB_Brisk brisk1 = ROB_Brisk(image);
 	
 	brisk1.descriptors();
-	
+
 	double x[3], y[3];
 	x[0] = 4;
 	x[1] = 8;
@@ -89,6 +89,12 @@ int main()
 #endif
 	Rob7BriskDescriptor briskDes = Rob7BriskDescriptor(KeyPoint(100, 100, 1, 1, 523, 0, -1), 1);
 	briskDes.createDescriptor(image);
+
+	Rob7BriskDescriptor briskDes2 = Rob7BriskDescriptor(KeyPoint(200, 200, 1, 1, 523, 0, -1), 1);
+	briskDes2.createDescriptor(image);
+
+	cout << "Difference between the two is " << briskDes.compareTo(briskDes2) << " bits.\n";
+
 	/*
 	for (int j = 0; j < 9; j++)
 	{
