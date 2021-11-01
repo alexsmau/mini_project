@@ -59,6 +59,93 @@ int main()
 {	
 	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
 	char alberto_path[] = "..//BRISK_MiniProject//images//Dog.jpg";
+	char book_small[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\book_small.jpg";
+	char cropped_book[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\cropped_book.jpg";
+
+	Mat image1 = imread(book_small, IMREAD_GRAYSCALE);
+	if (image1.empty())
+	{
+		cout << "Could not open or find the image" << endl;
+		cin.get(); //wait for any key press
+		return -1;
+	}
+
+	Mat image2 = imread(cropped_book, IMREAD_GRAYSCALE);
+	if (image2.empty())
+	{
+		cout << "Could not open or find the image" << endl;
+		cin.get(); //wait for any key press
+		return -1;
+	}
+
+	ROB_Brisk brisk1 = ROB_Brisk(image1);
+	brisk1.calculate_descriptors();
+
+	vector<KeyPoint> adjusted_kp1;
+	for (Rob7BriskDescriptor descr1 : brisk1.descriptors)
+	{
+		adjusted_kp1.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
+	}
+	Mat img1_w_kp;
+	drawKeypoints(image1, adjusted_kp1, img1_w_kp);
+	imshow("Image 1 keypoints", img1_w_kp);
+
+
+	ROB_Brisk brisk2 = ROB_Brisk(image2);
+	brisk2.calculate_descriptors();
+
+	vector<KeyPoint> adjusted_kp2;
+	for (Rob7BriskDescriptor descr1 : brisk2.descriptors)
+	{
+		adjusted_kp2.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
+	}
+	Mat img2_w_kp;
+	drawKeypoints(image2, adjusted_kp2, img2_w_kp);
+	imshow("Image 2 keypoints", img2_w_kp);
+		
+
+	vector<KeyPoint> match_img1;
+	match_img1.clear();
+	vector<KeyPoint> match_img2;
+	match_img2.clear();
+
+	vector<DMatch> matches;
+	matches.clear();
+
+	int min_score, score;
+	KeyPoint matched_kp;
+	int idx = 0;
+	for (Rob7BriskDescriptor descr1 : brisk1.descriptors)
+	{
+		min_score = 512;
+		for (Rob7BriskDescriptor descr2 : brisk2.descriptors)
+		{
+			score = descr1.compareTo(descr2);
+			if (score < min_score)
+			{
+				min_score = score;
+				matched_kp = descr2.keypoint;
+			}
+		}
+		cout << "Min score of " << min_score << "\n";
+		if (min_score < 201)
+		{
+			match_img1.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
+			match_img2.push_back(KeyPoint((matched_kp.pt.x * pow(2, matched_kp.size)), (matched_kp.pt.y * pow(2, matched_kp.size)), 1, 100, 0, -1));
+			matches.push_back(DMatch(idx, idx, min_score));
+			idx++;
+		}
+	}
+	cout << "there are " << idx << " matches\n";
+	Mat result;
+	drawMatches(image1, match_img1, image2, match_img2, matches, result);
+
+	
+	
+	imshow("Result", result);
+	waitKey(0);
+
+#if 0
 	Mat image = imread(asmau_img_path, IMREAD_GRAYSCALE);
 	if (image.empty())
 	{
@@ -66,11 +153,13 @@ int main()
 		cin.get(); //wait for any key press
 		return -1;
 	}
-#if 0
+
 	ROB_Brisk brisk1 = ROB_Brisk(image);
 	
-	brisk1.descriptors();
+	brisk1.calculate_descriptors();
+#endif
 
+#if 0
 	double x[3], y[3];
 	x[0] = 4;
 	x[1] = 8;
@@ -86,7 +175,7 @@ int main()
 		cout << coeff[i] << " ";
 	}
 	cout << "\n";
-#endif
+
 	Rob7BriskDescriptor briskDes = Rob7BriskDescriptor(KeyPoint(100, 100, 1, 1, 523, 0, -1), 1);
 	briskDes.createDescriptor(image);
 
@@ -94,7 +183,8 @@ int main()
 	briskDes2.createDescriptor(image);
 
 	cout << "Difference between the two is " << briskDes.compareTo(briskDes2) << " bits.\n";
-
+#endif
+	//Rob7BriskDescriptor briskDes3 = briskDes2.clone();
 	/*
 	for (int j = 0; j < 9; j++)
 	{

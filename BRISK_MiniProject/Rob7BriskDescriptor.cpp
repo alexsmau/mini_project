@@ -7,15 +7,14 @@
 
 using namespace std;
 
-Rob7BriskDescriptor::Rob7BriskDescriptor(KeyPoint kp, int scale)
+Rob7BriskDescriptor::Rob7BriskDescriptor(KeyPoint kp)
 {
-	_scale = scale;
-
 	nr_of_circles = 4;
 
 	keypoint.pt.x = kp.pt.x;
 	keypoint.pt.y = kp.pt.y;
 	keypoint.response = kp.response;
+	keypoint.size = kp.size;
 
 	nr_of_points_per_circle[0] = 10;
 	nr_of_points_per_circle[1] = 14;
@@ -76,7 +75,7 @@ void Rob7BriskDescriptor::generatePoints()
 	*/
 
 	points[0][0] = keypoint.pt.y; //row in image matrix
-	points[0][1] = keypoint.pt.y; //column in image matrix
+	points[0][1] = keypoint.pt.x; //column in image matrix
 	int pos = 1;
 	float angle_increment;
 	int dx, dy;
@@ -183,7 +182,9 @@ void Rob7BriskDescriptor::calculate_gardient(int point1_idx, int point2_idx, dou
 	double distance = calculateDistance(point1_idx, point2_idx);
 	//double intensity1 = gauss(get_point_sigma(point1_idx) * sigma_gain, ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1]))));
 	//double intensity2 = gauss(get_point_sigma(point2_idx) * sigma_gain, ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1]))));
+	//cout << "intensity1 at row " << points[point1_idx][0] << " col " << points[point1_idx][1] << "\n";
 	double intensity1 = ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1])));
+	//cout << "intensity2 at row " << points[point2_idx][0] << " col " << points[point2_idx][1] << "\n";
 	double intensity2 = ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1])));
 	double magnitude = (intensity1 - intensity2) / distance;
 	//cout << "intensity1 " << intensity1 << " intensity2 " << intensity2 << " magnitude " << magnitude << " distance " << distance << "\n";

@@ -12,7 +12,7 @@ using namespace std;
 class Rob7BriskDescriptor
 {
 private:
-	KeyPoint keypoint;
+	//KeyPoint keypoint;
 	int nr_of_circles;
 	double circle_offsets[4];
 	double nr_of_points_per_circle[4];
@@ -22,7 +22,6 @@ private:
 	int long_pairs[870][2];
 	int short_pairs[512][2];
 	int count_long_pairs;
-	int _scale;
 	uint32_t descriptor[16];
 	void generatePoints();
 	void generateOffsets();
@@ -35,7 +34,8 @@ private:
 	void compute_descriptor_bits(Mat image);
 	
 public:
-	Rob7BriskDescriptor(KeyPoint kp, int scale);
+	KeyPoint keypoint;
+	Rob7BriskDescriptor(KeyPoint kp);
 	void createDescriptor(Mat image);
 	int compareTo(Rob7BriskDescriptor descriptor);
 };

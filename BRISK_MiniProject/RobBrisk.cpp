@@ -298,7 +298,7 @@ void ROB_Brisk::nms_scales()
 				{
 					if (keypoints[i][j].response + 1 > max_above) //TODO: Remember to change this (+ 1), we cheated
 					{
-						good_kp.push_back(keypoints[i][j]);
+						//good_kp.push_back(keypoints[i][j]);
 						//maxscoreparabola(max_above, -1, keypoints[i][j].response, good_kp[i], i, i % 2);
 						//cout << "At layer 0 the current score is: " << keypoints[i][j].response << " and the above is: " << max_above << "\n";
 					}
@@ -315,22 +315,23 @@ void ROB_Brisk::nms_scales()
 				{
 					if (keypoints[i][j].response > max_above && keypoints[i][j].response > max_below)
 					{
-						//good_kp.push_back(keypoints[i][j]);
+						keypoints[i][j].size = i;
+						good_kp.push_back(keypoints[i][j]);
 						double scores[3];
 						scores[0] = (double)max_below;
 						scores[1] = (double)keypoints[i][j].response;
 						scores[2] = (double)max_above;
 						double max_point_layer, max_point_score;
 						max_score_form_parabola(scores, i, &max_point_layer, &max_point_score);
-						cout << "At layer: " << i << " the current score is : " << keypoints[i][j].response << " below is : " << max_below << " above is : " << max_above << "\n";
-						cout << "Parabola thingy sais it is at layer: " << max_point_layer << " and has a score of: " << max_point_score << "\n\n";
+						//cout << "At layer: " << i << " the current score is : " << keypoints[i][j].response << " below is : " << max_below << " above is : " << max_above << "\n";
+						//cout << "Parabola thingy sais it is at layer: " << max_point_layer << " and has a score of: " << max_point_score << "\n\n";
 						int img_r, img_c;
 						extrapolate_kp_location_in_image(keypoints[i][j].pt.y, keypoints[i][j].pt.x, max_point_layer, &img_r, &img_c);
 						/**
 						 * I think this is what we need to do here: push to the good list a new keypoint that is found in the original image
 						 * exatrpolated from the keypoint we found in this layer and the max_layer/score we found from the parabola. 
 						 */
-						good_kp.push_back(cv::KeyPoint(img_c, img_r, 1, 1, max_point_score, 0, -1));
+						//good_kp.push_back(cv::KeyPoint(keypoints[i][j].pt.x, keypoints[i][j].pt.y, max_point_layer, 1, max_point_score, 0, -1));
 					}
 				}
 			}
@@ -344,7 +345,7 @@ void ROB_Brisk::nms_scales()
 				{
 					if (keypoints[i][j].response + 1 > max_below) //TODO: Remember to change this (+ 1), we cheated
 					{
-						good_kp.push_back(keypoints[i][j]);
+						//good_kp.push_back(keypoints[i][j]);
 						//cout << "At layer: " << i << " the current score is : " << keypoints[i][j].response << " below is : " << max_below << "\n";
 					}
 				}
@@ -358,12 +359,29 @@ void ROB_Brisk::compute_subpixel_maximum() {}
 void ROB_Brisk::reinterpolate() {}
 
 //Keypoint Description
-void ROB_Brisk::sampling() {}
-void ROB_Brisk::pair_generation() {}
-void ROB_Brisk::pair_division() {}
-void ROB_Brisk::distance_computation() {}
+void ROB_Brisk::generate_descriptors_form_keypoints()
+{
+	descriptors.clear();
+	
+	for (KeyPoint kp : good_kp)
+	{
+		int newColsNr = image.cols / (pow(2, kp.size));
+		int newRowsNr = image.rows / (pow(2, kp.size));
 
-void ROB_Brisk::descriptors()
+		if (kp.pt.x < 40 || kp.pt.x >(newColsNr - 40)) //kp column
+			continue;
+		if (kp.pt.y < 40 || kp.pt.y >(newRowsNr - 40)) //kp row
+			continue;
+		//cout << "keypoint row " << kp.pt.y << " keypoint col " << kp.pt.x << " new rows " << newRowsNr << " col " << newColsNr << "\n";
+		Rob7BriskDescriptor descriptor = Rob7BriskDescriptor(kp);
+		Mat scaled_image;
+		resize(image, scaled_image, Size(newColsNr, newRowsNr), INTER_LINEAR);
+		descriptor.createDescriptor(scaled_image);
+		descriptors.push_back(descriptor);
+	}
+}
+
+void ROB_Brisk::calculate_descriptors()
 {
 	create_scale_space();
 	cout << "Finished creating scale space\n";
@@ -371,5 +389,8 @@ void ROB_Brisk::descriptors()
 	cout << "Finished computing fast on each layer\n";
 	nms_scales();
 	cout << "Finished doing the inter layer nms\n";
-
+	cout << "There are " << good_kp.size() << " good keypoints.\n";
+	generate_descriptors_form_keypoints();
+	cout << "Finished computing descriptors\n";
+	cout << "There are " << descriptors.size() << " descriptors.\n";
 }

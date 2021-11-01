@@ -6,8 +6,7 @@
 #include <opencv2/core/utility.hpp>
 #include <opencv2/core.hpp>
 #include <iostream>
-
-
+#include "Rob7BriskDescriptor.h"
 
 using namespace cv;
 using namespace std;
@@ -18,7 +17,7 @@ class ROB_Brisk
 
 public:
 	ROB_Brisk(Mat img);
-	void descriptors(); //Function for generating the Descriptor
+	void calculate_descriptors(); //Function for generating the Descriptor
 	
 	//temporary public.
 	void gaussEliminationLS(int nr_of_coeff, int n, double augMat[5][5], double coeff[5]);
@@ -32,6 +31,7 @@ public:
 	 */
 	void computeQuadraticCoeff(double x[3], double y[3], double coeff[5]);
 
+	vector<Rob7BriskDescriptor> descriptors;
 private:
 	Mat image; //Variable for the image
 
@@ -73,10 +73,8 @@ private:
 	void reinterpolate(); //Function for re-interpolating the image coordinates
 
 	//Feature Description
-	void sampling(); //Function for sampling points around keypoint
-	void pair_generation(); //Function for generating pairs of points
-	void pair_division(); //Function for dividing the pairs found into Long and Short
-	void distance_computation(); //Function for computing the overall distance of the keypoint
+	void generate_descriptors_form_keypoints();
+
 };
 
 #endif
