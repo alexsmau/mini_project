@@ -59,6 +59,18 @@ int main()
 {	
 	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
 	char alberto_path[] = "..//BRISK_MiniProject//images//Dog.jpg";
+
+	Mat image = imread(alberto_path, IMREAD_GRAYSCALE);
+	if (image.empty())
+	{
+		cout << "Could not open or find the image" << endl;
+		cin.get(); //wait for any key press
+		return -1;
+	}
+
+	ROB_Brisk brisk1 = ROB_Brisk(image);
+	brisk1.calculate_descriptors();
+#if 0
 	char book_small[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\book_small.jpg";
 	char cropped_book[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\cropped_book.jpg";
 
@@ -139,24 +151,9 @@ int main()
 	cout << "there are " << idx << " matches\n";
 	Mat result;
 	drawMatches(image1, match_img1, image2, match_img2, matches, result);
-
-	
 	
 	imshow("Result", result);
 	waitKey(0);
-
-#if 0
-	Mat image = imread(asmau_img_path, IMREAD_GRAYSCALE);
-	if (image.empty())
-	{
-		cout << "Could not open or find the image" << endl;
-		cin.get(); //wait for any key press
-		return -1;
-	}
-
-	ROB_Brisk brisk1 = ROB_Brisk(image);
-	
-	brisk1.calculate_descriptors();
 #endif
 
 #if 0
@@ -178,13 +175,7 @@ int main()
 
 	Rob7BriskDescriptor briskDes = Rob7BriskDescriptor(KeyPoint(100, 100, 1, 1, 523, 0, -1), 1);
 	briskDes.createDescriptor(image);
-
-	Rob7BriskDescriptor briskDes2 = Rob7BriskDescriptor(KeyPoint(200, 200, 1, 1, 523, 0, -1), 1);
-	briskDes2.createDescriptor(image);
-
-	cout << "Difference between the two is " << briskDes.compareTo(briskDes2) << " bits.\n";
 #endif
-	//Rob7BriskDescriptor briskDes3 = briskDes2.clone();
 	/*
 	for (int j = 0; j < 9; j++)
 	{

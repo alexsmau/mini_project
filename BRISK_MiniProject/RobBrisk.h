@@ -45,9 +45,10 @@ private:
 	void create_scale_space(); //Function for "creating" the Scale-Space pyramid
 	void computeFAST(); //Function for computing the FAST algorithm, returning the keypoints found
 	void nms_scales(); //Function for computing non-maximum supression between layers
-	int getmaxscoreinarea(int layerindex, int x, int y, bool up, bool oct); //Function for getting the maximum score of a 3x3 area
+	int getmaxscoreinarea(int layerindex, int x, int y, bool up, bool oct, float* x_pos, float* y_pos); //Function for getting the maximum score of a 3x3 area
 	
-	/**
+
+	/*
 	 * Compute the maximum point of the parabola that best fits the 3 keypoint locations. 
 	 * [in]  scores[3]       - an array of all the scores scores[0]-below, score[1]-middle, score[2]-above.
 	 * [in]  mid_point_layer - the layer of the midpoint. From this we can calculate the scaleof all points.
@@ -56,7 +57,7 @@ private:
 	 */
 	void max_score_form_parabola(double scores[3], int mid_point_layer, double* max_point_layer, double* max_point_score);
 
-	/**
+	/*
 	 * We need to figure out where in the original image does this keypoint belong to.
 	 * The x and y coordinates are the same ones as the keypoint, but the layer in which it resides 
 	 * is no longer "i" but rather the sub-layer computed from the best-fit parabola. From the (x/y) pair and 
@@ -68,13 +69,12 @@ private:
 	 * [out] image_row  - the row in the original image that the keypoint corresponds to 
 	 * [out] image_col  - the column in the original image that the keypoint corresponds to 
 	 */
-	void extrapolate_kp_location_in_image(int kp_row, int kp_col, double layer, int* image_row, int* image_col);
+	void extrapolate_kp_location_in_image(int kp_row, int kp_col, float positions[4], int i, double layer, double* image_row, double* image_col);
 	void compute_subpixel_maximum(); //Function for computing subpixel maximum
 	void reinterpolate(); //Function for re-interpolating the image coordinates
 
 	//Feature Description
 	void generate_descriptors_form_keypoints();
-
 };
 
 #endif

@@ -143,10 +143,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Rob7BriskDescriptor.cpp" />
     <ClCompile Include="RobBrisk.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="fast_cpp\FASTcpp\FASTcpp\Rob7FAST.h" />
+    <ClInclude Include="Rob7BriskDescriptor.h" />
     <ClInclude Include="RobBrisk.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
