@@ -88,7 +88,7 @@ void ROB_Brisk::computeFAST()
 			else
 			{
 				kpMat[kp.pt.y][kp.pt.x].response = kp.response;
-			}		
+			}
 		}
 		layerkpmat.push_back(kpMat);
 	}
@@ -183,7 +183,7 @@ static void printMatrix(int m, int n, double matrix[5][5])
 	int i, j;
 	for (i = 0; i < m; i++)
 	{
-		for (j = 0; j < n; j++) 
+		for (j = 0; j < n; j++)
 		{
 			printf("%lf\t", matrix[i][j]);
 		}
@@ -262,7 +262,7 @@ void ROB_Brisk::max_score_form_parabola(double scores[3], int mid_point_layer, d
 	double coeff[5];
 
 	computeQuadraticCoeff(x, scores, coeff);
-	
+
 	//Find the peak of the parabola
 	double a, b, c;
 	a = coeff[2];
@@ -279,73 +279,74 @@ void ROB_Brisk::max_score_form_parabola(double scores[3], int mid_point_layer, d
 	*max_point_score = yp;
 }
 
-void ROB_Brisk::extrapolate_kp_location_in_image(int kp_row, int kp_col, float positions[4], int i, double layer, double* image_row, double* image_col)
+void ROB_Brisk::extrapolate_kp_location_in_image(int kp_row, int kp_col, float positions[4], int i, double layer, float* image_row, float* image_col)
 {
+	double scale, scale_going_through_currentlayer, scale_NOT_going_through_currentlayer;
+	bool scale_up = false;
+
 	/*
-			Layer 6 -> go up to Layer 7 and then to 7.17
-				Layer 7-> go up (CURRENT LAYER)
-					kp at 7.17
-						Layer 8 -> go down
-
-
-						Layer 6 -> go up to 6.5
-					kp at 6.5
-				Layer 7-> go down (CURRENT LAYER)
-			Layer 8 -> go down to 7 and then to 6.5
+	* octave going up = 2/3
+	* octave going down = 4/3
+	* intraoctave going up = 3/4
+	* intraoctave going down = 3/2
 	*/
 
-	double scale, inverted_scale;
-	bool scale_up;
-	if (i % 2) //intra
+	if (i % 2) //current layer = intraoctave
 	{
-		if (layer > i) //up -- downscaled img
+		if (layer > i)
 		{
 			scale = 0.75;
-			inverted_scale;
+			scale_going_through_currentlayer = 0.66; //(we go from layer below, which is an octave, to current layer and then to layer)
+			scale_NOT_going_through_currentlayer = 1.33;
 			scale_up = true;
 		}
-		else //down -- upscaled img
+		else //layer < i
 		{
-			scale = 1.33;
-			inverted_scale;
+			scale = 1.5;
+			scale_going_through_currentlayer = 1.33; //(we go from layer above, which is an octave, to current layer and then to layer)
+			scale_NOT_going_through_currentlayer = 0.66;
 			scale_up = false;
 		}
 	}
-	else //octaves
+	else //current layer = octave 
 	{
-		if (layer > i)//up -- downscaled img
+		if (layer > i)
 		{
 			scale = 0.66;
+			scale_going_through_currentlayer = 0.75; //(we go from layer below, which is an intraoctave, to current layer and then to layer)
+			scale_NOT_going_through_currentlayer = 1.5;
 			scale_up = true;
 		}
-		else //down -- upscaled img
+		else //(current layer = octave && layer < i)
 		{
-			scale = 1.5;
+			scale = 1.33;
+			scale_going_through_currentlayer = 1.5; //(we go from layer above, which is an intraoctave, to current layer and then to layer)
+			scale_NOT_going_through_currentlayer = 0.75;
 			scale_up = false;
 		}
 	}
 
 	double whole;
 	double decimal_part = modf(layer, &whole);
-	double layer_value_middle = 1 - (( 1 - scale) * (decimal_part));
+	double layer_value_middle, layer_value_lower, layer_value_upper;
+
+	layer_value_middle  = 1 - ((1 - scale) * (decimal_part));
 	if (scale_up == true)
 	{
-		double layer_value_lower = scale * (1 - ((1 - scale) * (decimal_part)));
-		double layer_value_upper;
+		layer_value_lower = scale_going_through_currentlayer * (1 - ((1 - scale) * (decimal_part)));
+		layer_value_upper = 1 - ((1 - scale_NOT_going_through_currentlayer) * (1 - decimal_part));
 	}
 	else
 	{
-		double layer_value_lower = scale * (1 - ((1 - scale) * (1 - decimal_part)));
-		double layer_value_upper;
+		layer_value_lower = 1 - ((1 - scale_NOT_going_through_currentlayer) * (1 - decimal_part));
+		layer_value_upper = scale_going_through_currentlayer * (1 - ((1 - scale) * (decimal_part)));
 	}
-	
 
-	*image_row = kp_row * layer_value_middle;
-	*image_col = kp_col * layer_value_middle;
+	*image_row = (positions[0] * layer_value_upper + positions[2] * layer_value_lower + kp_row * layer_value_middle) / 3; //Average x pos
+	*image_col = (positions[1] * layer_value_upper + positions[3] * layer_value_lower + kp_col * layer_value_middle) / 3; //Average y pos
 
-	cout << "decimal " << decimal_part << " scale " << scale << endl;
-	//cout << "row is "<< kp_row << " times " << layer_value << " which is " << *image_row << endl;
-	//cout << "col is " << kp_col << " times " << layer_value << " which is " << *image_col << endl;
+	//cout << "row is " << kp_row << " which is " << *image_row << endl;
+	//cout << "col is " << kp_col << " which is " << *image_col << endl;
 }
 
 void ROB_Brisk::nms_scales()
@@ -360,7 +361,7 @@ void ROB_Brisk::nms_scales()
 			for (int j = 0; j < keypoints[i].size(); j++)
 			{
 				float x_pos_above, y_pos_above;
-				max_above = getmaxscoreinarea(i + 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, true, i % 2 ? false : true, & x_pos_above, &y_pos_above);
+				max_above = getmaxscoreinarea(i + 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, true, i % 2 ? false : true, &x_pos_above, &y_pos_above);
 				if (max_above > 0) //Checks if they exist
 				{
 					if (keypoints[i][j].response + 1 > max_above) //TODO: Remember to change this (+ 1), we cheated
@@ -389,8 +390,6 @@ void ROB_Brisk::nms_scales()
 				{
 					if (keypoints[i][j].response > max_above && keypoints[i][j].response > max_below)
 					{
-						//keypoints[i][j].size = i;
-						//good_kp.push_back(keypoints[i][j]);
 						double scores[3];
 						scores[0] = (double)max_below;
 						scores[1] = (double)keypoints[i][j].response;
@@ -399,15 +398,16 @@ void ROB_Brisk::nms_scales()
 						max_score_form_parabola(scores, i, &max_point_layer, &max_point_score);
 						//cout << "At layer: " << i << " the current score is : " << keypoints[i][j].response << " below is : " << max_below << " above is : " << max_above << "\n";
 						//cout << "Parabola thingy sais it is at layer: " << max_point_layer << " and has a score of: " << max_point_score << "\n\n";
-						double img_r, img_c;
-				
-						extrapolate_kp_location_in_image(keypoints[i][j].pt.y, keypoints[i][j].pt.x, positions, i, max_point_layer, &img_r, &img_c);
+						float img_row, img_col;
+
+						extrapolate_kp_location_in_image(keypoints[i][j].pt.y, keypoints[i][j].pt.x, positions, i, max_point_layer, &img_row, &img_col);
 
 						/*
 						 * I think this is what we need to do here: push to the good list a new keypoint that is found in the original image
-						 * exatrpolated from the keypoint we found in this layer and the max_layer/score we found from the parabola. 
+						 * exatrpolated from the keypoint we found in this layer and the max_layer/score we found from the parabola.
 						 */
-						//good_kp.push_back(cv::KeyPoint(keypoints[i][j].pt.x, keypoints[i][j].pt.y, max_point_layer, 1, max_point_score, 0, -1));
+
+						 good_kp.push_back(cv::KeyPoint(img_row, img_col, max_point_layer, 1, max_point_score, 0, -1));
 					}
 				}
 			}
@@ -417,7 +417,7 @@ void ROB_Brisk::nms_scales()
 			for (int j = 0; j < keypoints[i].size(); j++)
 			{
 				float x_pos_below, y_pos_below;
-				max_below = getmaxscoreinarea(i - 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, false, i % 2 ? false : true, & x_pos_below, &y_pos_below);
+				max_below = getmaxscoreinarea(i - 1, keypoints[i][j].pt.y, keypoints[i][j].pt.x, false, i % 2 ? false : true, &x_pos_below, &y_pos_below);
 				if (max_below > 0) //Checks if they exist
 				{
 					if (keypoints[i][j].response + 1 > max_below) //TODO: Remember to change this (+ 1), we cheated
@@ -432,14 +432,11 @@ void ROB_Brisk::nms_scales()
 	cout << "There are " << good_kp.size() << " good keypoints.\n";
 }
 
-void ROB_Brisk::compute_subpixel_maximum() {}
-void ROB_Brisk::reinterpolate() {}
-
 //Keypoint Description
 void ROB_Brisk::generate_descriptors_form_keypoints()
 {
 	descriptors.clear();
-	
+
 	for (KeyPoint kp : good_kp)
 	{
 		int newColsNr = image.cols / (pow(2, kp.size));

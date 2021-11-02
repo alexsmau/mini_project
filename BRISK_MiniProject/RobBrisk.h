@@ -5,7 +5,6 @@
 
 #include <opencv2/core/utility.hpp>
 #include <opencv2/core.hpp>
-#include <iostream>
 #include "Rob7BriskDescriptor.h"
 
 using namespace cv;
@@ -69,9 +68,7 @@ private:
 	 * [out] image_row  - the row in the original image that the keypoint corresponds to 
 	 * [out] image_col  - the column in the original image that the keypoint corresponds to 
 	 */
-	void extrapolate_kp_location_in_image(int kp_row, int kp_col, float positions[4], int i, double layer, double* image_row, double* image_col);
-	void compute_subpixel_maximum(); //Function for computing subpixel maximum
-	void reinterpolate(); //Function for re-interpolating the image coordinates
+	void extrapolate_kp_location_in_image(int kp_row, int kp_col, float positions[4], int i, double layer, float* image_row, float* image_col);
 
 	//Feature Description
 	void generate_descriptors_form_keypoints();

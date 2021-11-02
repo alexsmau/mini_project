@@ -21,10 +21,10 @@
     <ClCompile Include="RobBrisk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rob7BriskDescriptor.cpp">
+    <ClCompile Include="fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fast_cpp\FASTcpp\FASTcpp\Rob7FAST.cpp">
+    <ClCompile Include="Rob7BriskDescriptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +32,10 @@
     <ClInclude Include="RobBrisk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rob7BriskDescriptor.h">
+    <ClInclude Include="fast_cpp\FASTcpp\FASTcpp\Rob7FAST.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fast_cpp\FASTcpp\FASTcpp\Rob7FAST.h">
+    <ClInclude Include="Rob7BriskDescriptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
