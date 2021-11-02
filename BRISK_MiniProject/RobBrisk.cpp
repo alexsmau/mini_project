@@ -49,18 +49,11 @@ void ROB_Brisk::create_scale_space()
 		}
 	}
 	int count = 0;
-	/*
-	for (Mat layer : layers)
-	{
-		cout << "Layer: " << count << " has rows: " << layer.rows << " cols: " << layer.cols << "\n";
-		count++;
-	}
-	*/
 }
 
 void ROB_Brisk::computeFAST()
 {
-	int threshold = 25;
+	int threshold = 10;
 	bool nms = true;
 	int scales = 9;
 	layerkpmat.clear();
@@ -228,12 +221,9 @@ void ROB_Brisk::computeQuadraticCoeff(double x[3], double y[3], double coeff[5])
 	for (i = 0; i <= pol_deg; i++) {
 		augMat[i][pol_deg + 1] = Y[i];
 	}
-	//printf("The polynomial fit is given by the equation:\n");
-	//printMatrix(pol_deg + 1, pol_deg + 2, augMat);
+
 	gaussEliminationLS(pol_deg + 1, pol_deg + 2, augMat, coeff);
-	//for (i = 0; i <= pol_deg; i++) {
-		//printf("%lfx^%d+", coeff[i], i);
-	//}
+
 }
 
 void ROB_Brisk::max_score_form_parabola(double scores[3], int mid_point_layer, double* max_point_layer, double* max_point_score)
@@ -344,9 +334,6 @@ void ROB_Brisk::extrapolate_kp_location_in_image(int kp_row, int kp_col, float p
 
 	*image_row = (positions[0] * layer_value_upper + positions[2] * layer_value_lower + kp_row * layer_value_middle) / 3; //Average x pos
 	*image_col = (positions[1] * layer_value_upper + positions[3] * layer_value_lower + kp_col * layer_value_middle) / 3; //Average y pos
-
-	//cout << "row is " << kp_row << " which is " << *image_row << endl;
-	//cout << "col is " << kp_col << " which is " << *image_col << endl;
 }
 
 void ROB_Brisk::nms_scales()
@@ -396,18 +383,15 @@ void ROB_Brisk::nms_scales()
 						scores[2] = (double)max_above;
 						double max_point_layer, max_point_score;
 						max_score_form_parabola(scores, i, &max_point_layer, &max_point_score);
-						//cout << "At layer: " << i << " the current score is : " << keypoints[i][j].response << " below is : " << max_below << " above is : " << max_above << "\n";
-						//cout << "Parabola thingy sais it is at layer: " << max_point_layer << " and has a score of: " << max_point_score << "\n\n";
 						float img_row, img_col;
 
 						extrapolate_kp_location_in_image(keypoints[i][j].pt.y, keypoints[i][j].pt.x, positions, i, max_point_layer, &img_row, &img_col);
-
 						/*
 						 * I think this is what we need to do here: push to the good list a new keypoint that is found in the original image
 						 * exatrpolated from the keypoint we found in this layer and the max_layer/score we found from the parabola.
 						 */
+						 good_kp.push_back(cv::KeyPoint(img_col, img_row, max_point_layer, 1, max_point_score, 0, -1));
 
-						 good_kp.push_back(cv::KeyPoint(img_row, img_col, max_point_layer, 1, max_point_score, 0, -1));
 					}
 				}
 			}
@@ -435,8 +419,6 @@ void ROB_Brisk::nms_scales()
 //Keypoint Description
 void ROB_Brisk::generate_descriptors_form_keypoints()
 {
-	descriptors.clear();
-
 	for (KeyPoint kp : good_kp)
 	{
 		int newColsNr = image.cols / (pow(2, kp.size));
@@ -446,10 +428,11 @@ void ROB_Brisk::generate_descriptors_form_keypoints()
 			continue;
 		if (kp.pt.y < 40 || kp.pt.y >(newRowsNr - 40)) //kp row
 			continue;
-		//cout << "keypoint row " << kp.pt.y << " keypoint col " << kp.pt.x << " new rows " << newRowsNr << " col " << newColsNr << "\n";
+
 		Rob7BriskDescriptor descriptor = Rob7BriskDescriptor(kp);
 		Mat scaled_image;
 		resize(image, scaled_image, Size(newColsNr, newRowsNr), INTER_LINEAR);
+
 		descriptor.createDescriptor(scaled_image);
 		descriptors.push_back(descriptor);
 	}
@@ -458,13 +441,7 @@ void ROB_Brisk::generate_descriptors_form_keypoints()
 void ROB_Brisk::calculate_descriptors()
 {
 	create_scale_space();
-	//cout << "Finished creating scale space\n";
 	computeFAST();
-	//cout << "Finished computing fast on each layer\n";
 	nms_scales();
-	cout << "Finished doing the inter layer nms\n";
-	cout << "There are " << good_kp.size() << " good keypoints.\n";
 	generate_descriptors_form_keypoints();
-	cout << "Finished computing descriptors\n";
-	cout << "There are " << descriptors.size() << " descriptors.\n";
 }

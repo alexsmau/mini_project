@@ -59,26 +59,6 @@ int Rob7FAST::getPixelScoreFromImage(cv::Mat image, int x, int y)
 		circle_of_pixels[k] = (int)(image.at<unsigned char>(ll, cc));
 	}
 
-	//std::cout << "i " << i << " j " << j << " ll " << ll << " cc " << cc << "\n";
-	/*
-	if (i == 3 && j == 363)
-	{
-		for (int k = 0; k < 16; k++)
-			std::cout << circle_of_pixels[k] << " ";
-		std::cout << "\n center pix: " << ((int)(image.at<unsigned char>(i, j))) << "\n";
-		std::cout << "\nThis is the surrpunding pix mat:\n";
-		debug = true;
-		for (int k = i - 3; k <= i + 3; k++)
-		{
-			for (int l = j - 3; l <= j + 3; l++)
-			{
-				std::cout << ((int)(image.at<unsigned char>(k, l))) << " ";
-			}
-			std::cout << "\n";
-		}
-	}
-	debug = true;
-	*/
 	return getPixelScore(circle_of_pixels, ((int)(image.at<unsigned char>(x, y))));
 }
 
@@ -109,8 +89,6 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					{
 						for (int c = 0; c < 3; c++)
 						{
-							//if (i>=3996)
-							//	std::cout << "Foo1 Look at r: " << i + r << " c: " << j + c << "\n";
 							debug_foo = 1;
 							debug_r = i + r;
 							debug_c = j + c;
@@ -135,7 +113,6 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					{
 						for (int c = (total_cols - remaining_cols); c < total_cols; c++)
 						{
-							//std::cout << "Foo2 Look at r: " << i + r << " c: " <<  c << "\n";
 							debug_foo = 2;
 							debug_r = i + r;
 							debug_c = c;
@@ -153,7 +130,6 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 						keypoints.push_back(cv::KeyPoint(max_c, max_r, 1, 1, max_score, 0, -1));
 					}
 				}
-				//std::cout << "\n\nline done\n";
 			}
 			if (remaining_rows)
 			{
@@ -164,7 +140,6 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 					{
 						for (int c = 0; c < 3; c++)
 						{
-							//std::cout << "Foo3 Look at r: " << r << " c: " << j + c << "\n";
 							debug_foo = 3;
 							debug_r = r;
 							debug_c = j + c;
@@ -190,7 +165,6 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 				{
 					for (int c = (total_cols - remaining_cols); c < total_cols; c++)
 					{
-						//std::cout << "Foo4 Look at r: " <<  r << " c: " <<  c << "\n";
 						debug_foo = 4;
 						debug_r = r;
 						debug_c = c;
@@ -211,7 +185,6 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 		}
 		else
 		{
-			//std::cout << "rows " << image.rows << " cols " << image.cols << "\n";
 			for (int i = 3; i < (image.rows - 3); i++)
 			{
 				for (int j = 3; j < (image.cols - 3); j++)
@@ -241,9 +214,7 @@ void Rob7FAST::getKeypoints(cv::Mat image, std::vector<cv::KeyPoint> &keypoints)
 	}
 	catch (...)
 	{
-		std::cout << "kill me\n";
 		std::cout << "Died at r: " << debug_r << " c: " << debug_c << " foo " << debug_foo << "\n";
-		//std::cout << "remaining_rows: " << remaining_rows << " remaining_cols: " << remaining_cols <<"\n";
 		while(true){}
 		
 	}
@@ -266,8 +237,6 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 		for (int i = 0; i < 16; i++)
 			std::cout << circle_of_pixels[i] << " ";
 		std::cout << "\nImax "<<Imax<<" Imin "<<Imin<<"\n";
-		//for (int i = 0; i < 16; i++)
-		//	std::cout << pixel_status[i] << " ";
 	}
 	/**
 	 * Create a 1D array of size nr_of_circle_pixels that will indicate the relationship
@@ -398,10 +367,8 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 			int score = 0;
 			int count = max_contiguous;
 			int index = last_index;
-			//std::cout << "\n score deltas:\n";
 			while (count > 0)
 			{
-				//std::cout << ((center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel)) << " ";
 				score += (center_pixel > circle_of_pixels[index]) ? (center_pixel - circle_of_pixels[index]) : (circle_of_pixels[index] - center_pixel);
 				index--;
 				if (index < 0)
@@ -410,7 +377,6 @@ int Rob7FAST::getPixelScore(int circle_of_pixels[16], int center_pixel)
 				}
 				count--;
 			}
-			//std::cout << "\nscore is " << score << "\n";
 			return score;
 		}
 		else

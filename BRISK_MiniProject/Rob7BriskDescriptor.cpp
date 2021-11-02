@@ -37,20 +37,12 @@ void Rob7BriskDescriptor::createDescriptor(Mat image)
 	generatePoints();
 	compute_short_and_long_pairs();
 	double orientation = compute_orientation(image);
-	//cout << "orientation is: " << orientation << "\n";
 	for (int circle = 0; circle < nr_of_circles; circle++)
 	{
 		circle_offsets[circle] += orientation;
 	}
 	generatePoints();
 	compute_descriptor_bits(image);
-#if 0 
-	for (int i = 0; i < 16; i++)
-	{
-		//cout << bitset  std::bitset<32>(descriptor[i]) << "\n";
-		printf("i=%2d -> %x \n", i, descriptor[i]);
-	}
-#endif
 }
 
 static void print_debug_mat(int debug_mat[41][41])
@@ -67,13 +59,6 @@ static void print_debug_mat(int debug_mat[41][41])
 
 void Rob7BriskDescriptor::generatePoints()
 {
-	/*
-	int debug_mat[41][41];
-	for (int i = 0; i < 41; i++)
-		for (int j = 0; j < 41; j++)
-			debug_mat[i][j] = 0;
-	*/
-
 	points[0][0] = keypoint.pt.y; //row in image matrix
 	points[0][1] = keypoint.pt.x; //column in image matrix
 	int pos = 1;
@@ -87,22 +72,13 @@ void Rob7BriskDescriptor::generatePoints()
 			dx = (int)(circle_pixel_radius[circle] * cos(circle_offsets[circle] + point * angle_increment));
 			dy = (int)(circle_pixel_radius[circle] * sin(circle_offsets[circle] + point * angle_increment));
 
-			//debug_mat[21 + dx][21 + dy] = 1;
-			//cout << "dx " << dx << " dy " << dy << "\n";
 			points[pos][0] = points[0][0] + dx;
 			points[pos][1] = points[0][1] + dy;
 			pos++;
 		}
-		//cout << "circle " << circle << "\n";
-		//print_debug_mat(debug_mat);
 		distance_per_circle[circle] = sqrt((points[pos - 1][0] - points[pos - 2][0]) * (points[pos - 1][0] - points[pos - 2][0]) + (points[pos - 1][1] - points[pos - 2][1]) * (points[pos - 1][1] - points[pos - 2][1]));
 	}
-	/*
-	for (int circle = 0; circle < nr_of_circles; circle++)
-	{
-		cout << "circle " << circle << " has a distance of: " << distance_per_circle[circle] << "\n";
-	}
-	*/
+
 }
 
 void Rob7BriskDescriptor::generateOffsets()
@@ -154,8 +130,6 @@ void Rob7BriskDescriptor::compute_short_and_long_pairs()
 		}
 	}
 	count_long_pairs = long_pair_idx;
-	//cout << "There are " << short_pair_idx << " short pairs idx\n";
-	//cout << "There are " << long_pair_idx << " long pairs idx\n";
 }
 
 double Rob7BriskDescriptor::compute_orientation(Mat img)
@@ -168,10 +142,7 @@ double Rob7BriskDescriptor::compute_orientation(Mat img)
 		calculate_gardient(long_pairs[i][0], long_pairs[i][1], &gx, &gy, img);
 		cma_gx = (gx + i*cma_gx)/(i+1);
 		cma_gy = (gy + i*cma_gy)/(i+1);
-		//cout << "gx " << gx << " gy " << gy << "\n";
-		//cout << "cma_gx " << cma_gx << " cma_gy " << cma_gy << "\n";
 	}
-	//cout << "cma_gx " << cma_gx << " cma_gy " << cma_gy << "\n";
 
 	return atan2(cma_gy, cma_gx);
 }
@@ -182,16 +153,13 @@ void Rob7BriskDescriptor::calculate_gardient(int point1_idx, int point2_idx, dou
 	double distance = calculateDistance(point1_idx, point2_idx);
 	//double intensity1 = gauss(get_point_sigma(point1_idx) * sigma_gain, ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1]))));
 	//double intensity2 = gauss(get_point_sigma(point2_idx) * sigma_gain, ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1]))));
-	//cout << "intensity1 at row " << points[point1_idx][0] << " col " << points[point1_idx][1] << "\n";
 	double intensity1 = ((double)(image.at<unsigned char>(points[point1_idx][0], points[point1_idx][1])));
-	//cout << "intensity2 at row " << points[point2_idx][0] << " col " << points[point2_idx][1] << "\n";
 	double intensity2 = ((double)(image.at<unsigned char>(points[point2_idx][0], points[point2_idx][1])));
 	double magnitude = (intensity1 - intensity2) / distance;
-	//cout << "intensity1 " << intensity1 << " intensity2 " << intensity2 << " magnitude " << magnitude << " distance " << distance << "\n";
 	
 	*gx = (points[point1_idx][0] - points[point2_idx][0]) * magnitude;
 	*gy = (points[point1_idx][1] - points[point2_idx][1]) * magnitude;
-	//cout << "gx " << *gx << " gy " << *gy << "\n";
+
 }
 
 double Rob7BriskDescriptor::get_point_sigma(int point_idx)

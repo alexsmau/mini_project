@@ -28,37 +28,9 @@
 using namespace cv;
 using namespace std;
 
-#if 0
-void cheatBrisk(vector<Mat> images)
-{
-	vector<KeyPoint> keypointsA, keypointsB;
-	Mat descriptorsA, descriptorsB;
-	
-	int Threshl = 100;
-	int Octaves = 4; //(pyramid layer) from which the keypoint has been extracted
-	float PatternScales = 1.0f;
-	Ptr<Feature2D> detector = BRISK::create(Threshl, Octaves, PatternScales);
-
-	detector->detect(images[4], keypointsA);
-	detector->detect(images[5], keypointsB);
-	detector->compute(images[4], keypointsA, descriptorsA);
-	detector->compute(images[5], keypointsB, descriptorsB);
-
-	vector<DMatch> matches;
-	FlannBasedMatcher matcher(new flann::LshIndexParams(20, 10, 2));
-	matcher.match(descriptorsA, descriptorsB, matches);
-
-	Mat all_matches;
-	drawMatches(images[4], keypointsA, images[5], keypointsB, matches, all_matches, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-
-	imshow("BRISK All Matches", all_matches);
-	waitKey(0);
-}
-#endif
-
 int main()
 {	
-#if 1
+#if 0
 	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
 	char alberto_path[] = "..//BRISK_MiniProject//images//Dog.jpg";
 
@@ -101,10 +73,6 @@ int main()
 	{
 		adjusted_kp1.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
 	}
-	Mat img1_w_kp;
-	drawKeypoints(image1, adjusted_kp1, img1_w_kp);
-	imshow("Image 1 keypoints", img1_w_kp);
-
 
 	ROB_Brisk brisk2 = ROB_Brisk(image2);
 	brisk2.calculate_descriptors();
@@ -114,10 +82,6 @@ int main()
 	{
 		adjusted_kp2.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
 	}
-	Mat img2_w_kp;
-	drawKeypoints(image2, adjusted_kp2, img2_w_kp);
-	imshow("Image 2 keypoints", img2_w_kp);
-		
 
 	vector<KeyPoint> match_img1;
 	match_img1.clear();
@@ -130,6 +94,8 @@ int main()
 	int min_score, score;
 	KeyPoint matched_kp;
 	int idx = 0;
+	cout << "Brisk 1 has " << brisk1.descriptors.size() << " elements\n";
+	cout << "Brisk 2 has " << brisk2.descriptors.size() << " elements\n";
 	for (Rob7BriskDescriptor descr1 : brisk1.descriptors)
 	{
 		min_score = 512;
@@ -142,8 +108,7 @@ int main()
 				matched_kp = descr2.keypoint;
 			}
 		}
-		cout << "Min score of " << min_score << "\n";
-		if (min_score < 201)
+		if (min_score < 180)
 		{
 			match_img1.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
 			match_img2.push_back(KeyPoint((matched_kp.pt.x * pow(2, matched_kp.size)), (matched_kp.pt.y * pow(2, matched_kp.size)), 1, 100, 0, -1));
@@ -159,31 +124,5 @@ int main()
 	waitKey(0);
 #endif
 
-#if 0
-	double x[3], y[3];
-	x[0] = 4;
-	x[1] = 8;
-	x[2] = 16;
-	y[0] = 34;
-	y[1] = 55;
-	y[2] = 22;
-	double coeff[5];
-	brisk1.computeQuadraticCoeff(x, y, coeff);
-	cout << "\ncoeff: ";
-	for (int i = 0; i < 3; i++)
-	{
-		cout << coeff[i] << " ";
-	}
-	cout << "\n";
 
-	Rob7BriskDescriptor briskDes = Rob7BriskDescriptor(KeyPoint(100, 100, 1, 1, 523, 0, -1), 1);
-	briskDes.createDescriptor(image);
-#endif
-	/*
-	for (int j = 0; j < 9; j++)
-	{
-		imshow("Result", layers[j]);
-		waitKey(0);
-	}
-	*/
 }
