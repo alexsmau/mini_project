@@ -28,6 +28,35 @@
 using namespace cv;
 using namespace std;
 
+#if 0
+ void cheatBrisk(vector<Mat> images)
+ {
+	vector<KeyPoint> keypointsA, keypointsB;
+	Mat descriptorsA, descriptorsB;
+	
+	int Threshl = 200;
+	int Octaves = 4; //(pyramid layer) from which the keypoint has been extracted
+	float PatternScales = 1.0f;
+	Ptr<Feature2D> detector = BRISK::create(Threshl, Octaves, PatternScales);
+	
+	detector->detect(images[0], keypointsA);
+	detector->detect(images[1], keypointsB);
+	detector->compute(images[0], keypointsA, descriptorsA);
+	detector->compute(images[1], keypointsB, descriptorsB);
+	
+	vector<DMatch> matches;
+	FlannBasedMatcher matcher(new flann::LshIndexParams(20, 10, 2));
+	matcher.match(descriptorsA, descriptorsB, matches);
+	
+	Mat all_matches;
+	drawMatches(images[0], keypointsA, images[1], keypointsB, matches, all_matches, Scalar::all(-1), Scalar::all(-1), vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+	namedWindow("OpenCV_flower", WINDOW_NORMAL);
+	imwrite("OpenCV_flower.jpg", all_matches);
+	imshow("OpenCV_flower", all_matches);
+	waitKey(0);
+	}
+#endif
+
 int main()
 {	
 #if 0
@@ -46,13 +75,13 @@ int main()
 	brisk1.calculate_descriptors();
 #else
 	char asmau_img_path[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\fast_cpp\\FASTcpp\\FASTcpp\\IMG_20201231_194210.jpg";
-	char book_small[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\book_small.jpg";
-	char cropped_book[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\cropped_book.jpg";
+	char book_small[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\flower_one.jpeg";
+	char cropped_book[] = "S:\\AAU\\Year1\\mini_project\\BRISK_MiniProject\\images\\flower_two.jpeg";
 
 	Mat image1 = imread(book_small, IMREAD_GRAYSCALE);
 	if (image1.empty())
 	{
-		cout << "Could not open or find the image" << endl;
+		cout << "Could not open or find the image1" << endl;
 		cin.get(); //wait for any key press
 		return -1;
 	}
@@ -60,10 +89,18 @@ int main()
 	Mat image2 = imread(cropped_book, IMREAD_GRAYSCALE);
 	if (image2.empty())
 	{
-		cout << "Could not open or find the image" << endl;
+		cout << "Could not open or find the image2" << endl;
 		cin.get(); //wait for any key press
 		return -1;
 	}
+
+#if 0
+	vector<Mat> img_list;
+	img_list.clear();
+	img_list.push_back(image1);
+	img_list.push_back(image2);
+	cheatBrisk(img_list);
+#endif
 
 	ROB_Brisk brisk1 = ROB_Brisk(image1);
 	brisk1.calculate_descriptors();
@@ -108,7 +145,7 @@ int main()
 				matched_kp = descr2.keypoint;
 			}
 		}
-		if (min_score < 180)
+		if (min_score < 130)
 		{
 			match_img1.push_back(KeyPoint((descr1.keypoint.pt.x * pow(2, descr1.keypoint.size)), (descr1.keypoint.pt.y * pow(2, descr1.keypoint.size)), 1, 100, 0, -1));
 			match_img2.push_back(KeyPoint((matched_kp.pt.x * pow(2, matched_kp.size)), (matched_kp.pt.y * pow(2, matched_kp.size)), 1, 100, 0, -1));
@@ -119,7 +156,8 @@ int main()
 	cout << "there are " << idx << " matches\n";
 	Mat result;
 	drawMatches(image1, match_img1, image2, match_img2, matches, result);
-	
+	imwrite("rob7_brisk_sherlock.jpg", result);
+	namedWindow("Result", WINDOW_NORMAL);
 	imshow("Result", result);
 	waitKey(0);
 #endif

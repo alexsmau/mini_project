@@ -10,6 +10,8 @@
 
 #include "./fast_cpp/FASTcpp/FASTcpp/Rob7FAST.h"
 
+#define PRESENT_STEPS
+
 using namespace cv;
 using namespace std;
 
@@ -47,8 +49,19 @@ void ROB_Brisk::create_scale_space()
 			pyrDown(octave, octave, Size((octave.cols) / 2, (octave.rows) / 2));
 			layers.push_back(octave);
 		}
+#ifdef PRESENT_STEPS
+		//namedWindow("Octave", WINDOW_NORMAL);
+		imshow("Octave", octave);
+		//namedWindow("Intraoctave", WINDOW_NORMAL);
+		imshow("Intraoctave", intraoctave);
+		waitKey(0);
+#endif
 	}
 	int count = 0;
+#ifdef PRESENT_STEPS
+	destroyWindow("Octave");
+	destroyWindow("Intraoctave");
+#endif
 }
 
 void ROB_Brisk::computeFAST()
@@ -67,6 +80,13 @@ void ROB_Brisk::computeFAST()
 
 		rob7_fast->getKeypoints(layers[i], kpLayer);
 		keypoints.push_back(kpLayer);
+#ifdef PRESENT_STEPS
+		Mat layer_w_kp;
+		drawKeypoints(layers[i], kpLayer, layer_w_kp);
+		imshow("Layer with FAST keypoints", layer_w_kp);
+		waitKey(0);
+		destroyWindow("Layer with FAST keypoints");
+#endif // PRESENT_STEPS
 
 		for (KeyPoint kp : kpLayer)
 		{
